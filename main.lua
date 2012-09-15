@@ -1,10 +1,10 @@
 local anim8 = require 'anim8'
 local HC = require 'lib/HardonCollider'
-
+local debug = false
 local player, Collider, dummy, sprites
 sprites = {}
 
-function initSprite(image, startPos, startDir, startState, startAnimation, animation, updateFunc, drawFunc)
+function initSprite(name, image, startPos, startDir, startState, startAnimation, animation, updateFunc, drawFunc)
   local ox, oy
   if startDir == 1 then
     ox, oy = 11, 16
@@ -12,6 +12,7 @@ function initSprite(image, startPos, startDir, startState, startAnimation, anima
     ox, oy = -11, 16
   end
   local shape = Collider:addRectangle(startPos.x + ox, startPos.y + oy, 16, 32)
+  shape.name = name
   shape.sprite =  {
     image = image,
     pos = startPos,
@@ -27,23 +28,12 @@ function initSprite(image, startPos, startDir, startState, startAnimation, anima
 end
 
 function onCollide(dt, shapeA, shapeB)
-  local p, d
-  if shapeA == dummy then
-    d = shapeA
-  elseif shapeA == player then
-    p = shapeA
-  end
-
-  if shapeB == dummy then
-    d = shapeB
-  elseif shapeB == player then
-    p = shapeB
-  end
-
-  if d then
-    print("hit")
-    d:move(1, 0)
-    d.sprite.pos.x = d.sprite.pos.x + 1
+  if shapeA == dummy and shapeB.name == 'punch' then
+    if shapeB.type == 'high' and shapeA.sprite.currentState == 'idle' then
+      print("hit")
+      shapeA:move(1, 0)
+      shapeA.sprite.pos.x = shapeA.sprite.pos.x + 1
+    end
   end
 end
 
@@ -62,6 +52,7 @@ function love.load()
       uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
       sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
       highkicking = anim8.newAnimation('once', g('1-4,3'), 0.1),
+      crouching = anim8.newAnimation('once', g('7,1'), 0.1),
     }
   sprites.ryan = {image=ryan}
   local g = anim8.newGrid(40, 40, ryan:getWidth(), ryan:getHeight())
@@ -72,9 +63,10 @@ function love.load()
       uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
       sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
       highkicking = anim8.newAnimation('once', g('1-4,3'), 0.1),
+      crouching = anim8.newAnimation('once', g('7,1'), 0.1),
     }
 
-  player = initSprite(sprites.alex.image, {x=200, y=300}, 1, 'idle',
+  player = initSprite("alex", sprites.alex.image, {x=200, y=300}, 1, 'idle',
     sprites.alex.animation.idle, sprites.alex.animation,
     function(self, dt)
       if self.currentState == 'idle' or self.currentState == 'walking' then
@@ -84,7 +76,11 @@ function love.load()
         elseif love.keyboard.isDown("i") then
           self.currentAnimation = self.animation.punching:clone()
           self.currentState = 'attacking'
-          self.attackRegion = Collider:addCircle(self.pos.x + 24, self.pos.y + 12, 4)
+          if self.attackRegion == nil or (self.attackRegion and self.attackRegion.name ~= 'punch') then
+            self.attackRegion = Collider:addCircle(self.pos.x + 24, self.pos.y + 12, 4)
+            self.attackRegion.type = 'high'
+            self.attackRegion.name = 'punch'
+          end
         elseif love.keyboard.isDown("j") then
           self.currentAnimation = self.animation.highkicking:clone()
           self.currentState = 'attacking'
@@ -124,7 +120,10 @@ function love.load()
       elseif self.currentState == 'attacking' and self.currentAnimation.status == 'finished' then
         self.currentAnimation = self.animation.idle
         self.currentState = 'idle'
-        self.attackRegion = nil
+        if self.attackRegion then
+          Collider:remove(self.attackRegion)
+          self.attackRegion = nil
+        end
       end
 
       self.currentAnimation:update(dt)
@@ -139,13 +138,20 @@ function love.load()
         oy = 0
       end
       self.currentAnimation:draw(self.image, self.pos.x, self.pos.y, 0, self.direction, 1, ox, oy)
-      if self.attackRegion then
+      if self.attackRegion and debug then
         self.attackRegion:draw('fill', 16)
       end
     end)
-  dummy = initSprite(sprites.ryan.image, {x=400, y=300}, -1, 'idle',
+  dummy = initSprite("ryan", sprites.ryan.image, {x=400, y=300}, -1, 'idle',
     sprites.ryan.animation.idle, sprites.ryan.animation,
     function(self, dt)
+      if self.currentState == 'idle' and math.random(1, 10) == 1 then
+        self.currentAnimation = self.animation.crouching
+        self.currentState = 'crouching'
+      elseif self.currentState == 'crouching' and math.random(1, 50) == 1 then
+        self.currentAnimation = self.animation.idle
+        self.currentState = 'idle'
+      end
       self.currentAnimation:update(dt)
       self.parent:moveTo(self.pos.x - 11, self.pos.y + 16)
     end,
@@ -162,8 +168,10 @@ function love.update(dt)
 end
 
 function love.draw()
-  player:draw('fill')
-  dummy:draw('fill')
+  if debug then
+    player:draw('fill')
+    dummy:draw('fill')
+  end
   player.sprite:draw()
   dummy.sprite:draw()
 end
