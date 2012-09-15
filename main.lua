@@ -28,9 +28,10 @@ function initSprite(name, image, startPos, startDir, startState, startAnimation,
 end
 
 function onCollide(dt, shapeA, shapeB)
-  if shapeA == dummy and shapeB.name == 'punch' then
-    if shapeB.type == 'high' and (
-        shapeA.sprite.currentState == 'idle' or shapeA.sprite.currentState == 'hurt') then
+  if shapeA == dummy and shapeB.type then
+    if (shapeB.type == 'high' and (
+            shapeA.sprite.currentState == 'idle' or shapeA.sprite.currentState == 'hurt')) or
+       (shapeB.type == 'mid') then
       print("hit")
       shapeA:move(1, 0)
       shapeA.sprite.pos.x = shapeA.sprite.pos.x + 1
@@ -77,6 +78,11 @@ function love.load()
         if love.keyboard.isDown("u") then
           self.currentAnimation = self.animation.uppercutting:clone()
           self.currentState = 'attacking'
+          if self.attackRegion == nil or (self.attackRegion and self.attackRegion.name ~= 'uppercut') then
+            self.attackRegion = Collider:addCircle(self.pos.x + 24, self.pos.y + 12, 4)
+            self.attackRegion.type = 'mid'
+            self.attackRegion.name = 'uppercut'
+          end
         elseif love.keyboard.isDown("i") then
           self.currentAnimation = self.animation.punching:clone()
           self.currentState = 'attacking'
@@ -146,7 +152,7 @@ function love.load()
         self.attackRegion:draw('fill', 16)
       end
     end)
-  dummy = initSprite("ryan", sprites.ryan.image, {x=400, y=300}, -1, 'idle',
+  dummy = initSprite("ryan", sprites.ryan.image, {x=250, y=300}, -1, 'idle',
     sprites.ryan.animation.idle, sprites.ryan.animation,
     function(self, dt)
       if self.currentState == 'idle' and math.random(1, 10) == 1 then
