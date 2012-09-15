@@ -1,8 +1,29 @@
 local anim8 = require 'anim8'
+local HC = require 'lib/HardonCollider'
 
-local image, animation, player
+local image, animation, player, Collider, dummy
+
+function onCollide(dt, shapeA, shapeB)
+  local p, d
+  if shapeA == dummy then
+    d = shapeA
+  elseif shapeA == player.attackRegion then
+    p = shapeA
+  end
+
+  if shapeB == dummy then
+    d = shapeB
+  elseif shapeB == player.attackRegion then
+    p = shapeB
+  end
+
+  if d then
+    d:move(1, 0)
+  end
+end
 
 function love.load()
+  Collider = HC(100, onCollide)
   image = love.graphics.newImage('rivercityransom_alex_sheet.png')
   local g = anim8.newGrid(40, 40, image:getWidth(), image:getHeight())
   player = {
@@ -19,6 +40,7 @@ function love.load()
     currentState = 'idle'
   }
   player.currentAnimation = player.animation.idle
+  dummy = Collider:addRectangle(200, 200, 100, 100)
 end
 
 function love.update(dt)
@@ -29,6 +51,7 @@ function love.update(dt)
     elseif love.keyboard.isDown("i") then
       player.currentAnimation = player.animation.punching:clone()
       player.currentState = 'attacking'
+      player.attackRegion = Collider:addCircle(player.pos.x + 24, player.pos.y + 12, 4)
     elseif love.keyboard.isDown("j") then
       player.currentAnimation = player.animation.highkicking:clone()
       player.currentState = 'attacking'
@@ -68,9 +91,11 @@ function love.update(dt)
   elseif player.currentState == 'attacking' and player.currentAnimation.status == 'finished' then
     player.currentAnimation = player.animation.idle
     player.currentState = 'idle'
+    player.attackRegion = nil
   end
 
   player.currentAnimation:update(dt)
+  Collider:update(dt)
 end
 
 function love.draw()
@@ -82,6 +107,10 @@ function love.draw()
     oy = 0
   end
   player.currentAnimation:draw(image, player.pos.x, player.pos.y, 0, player.direction, 1, ox, oy)
+  if player.attackRegion then
+    player.attackRegion:draw('fill', 16)
+  end
+  dummy:draw('fill')
 end
 
 
