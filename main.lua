@@ -5,7 +5,14 @@ local player, Collider, dummy, sprites
 sprites = {}
 
 function initSprite(image, startPos, startDir, startState, startAnimation, animation, updateFunc, drawFunc)
-  return {
+  local ox, oy
+  if startDir == 1 then
+    ox, oy = 11, 16
+  elseif startDir == -1 then
+    ox, oy = -11, 16
+  end
+  local shape = Collider:addRectangle(startPos.x + ox, startPos.y + oy, 16, 32)
+  shape.sprite =  {
     image = image,
     pos = startPos,
     direction = startDir,
@@ -14,29 +21,35 @@ function initSprite(image, startPos, startDir, startState, startAnimation, anima
     animation = animation,
     update = updateFunc,
     draw = drawFunc,
+    parent = shape,
   }
+  return shape
 end
 
 function onCollide(dt, shapeA, shapeB)
   local p, d
   if shapeA == dummy then
     d = shapeA
-  elseif shapeA == player.attackRegion then
+  elseif shapeA == player then
     p = shapeA
   end
 
   if shapeB == dummy then
     d = shapeB
-  elseif shapeB == player.attackRegion then
+  elseif shapeB == player then
     p = shapeB
   end
 
   if d then
+    print("hit")
     d:move(1, 0)
+    d.sprite.pos.x = d.sprite.pos.x + 1
   end
 end
 
 function love.load()
+  Collider = HC(100, onCollide)
+
   local alex, ryan
   alex = love.graphics.newImage('rivercityransom_alex_sheet.png')
   ryan = love.graphics.newImage('rivercityransom_ryan_sheet.png')
@@ -115,7 +128,7 @@ function love.load()
       end
 
       self.currentAnimation:update(dt)
-
+      self.parent:moveTo(self.pos.x + 11 , self.pos.y + 16)
     end,
     function(self)
       local ox, oy
@@ -133,22 +146,26 @@ function love.load()
   dummy = initSprite(sprites.ryan.image, {x=400, y=300}, -1, 'idle',
     sprites.ryan.animation.idle, sprites.ryan.animation,
     function(self, dt)
+      self.currentAnimation:update(dt)
+      self.parent:moveTo(self.pos.x - 11, self.pos.y + 16)
     end,
     function(self)
+      self.currentAnimation:draw(self.image, self.pos.x, self.pos.y, 0, self.direction, 1, ox, oy)
     end)
 
-  Collider = HC(100, onCollide)
 end
 
 function love.update(dt)
-  player:update(dt)
-  dummy:update(dt)
+  player.sprite:update(dt)
+  dummy.sprite:update(dt)
   Collider:update(dt)
 end
 
 function love.draw()
-  player:draw()
-  dummy:draw()
+  player:draw('fill')
+  dummy:draw('fill')
+  player.sprite:draw()
+  dummy.sprite:draw()
 end
 
 
