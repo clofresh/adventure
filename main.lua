@@ -1,6 +1,6 @@
 local anim8 = require 'anim8'
 local HC = require 'lib/HardonCollider'
-local debug = false
+local debug = false 
 local player, Collider, dummy, sprites
 sprites = {}
 
@@ -29,10 +29,13 @@ end
 
 function onCollide(dt, shapeA, shapeB)
   if shapeA == dummy and shapeB.name == 'punch' then
-    if shapeB.type == 'high' and shapeA.sprite.currentState == 'idle' then
+    if shapeB.type == 'high' and (
+        shapeA.sprite.currentState == 'idle' or shapeA.sprite.currentState == 'hurt') then
       print("hit")
       shapeA:move(1, 0)
       shapeA.sprite.pos.x = shapeA.sprite.pos.x + 1
+      shapeA.sprite.currentAnimation = shapeA.sprite.animation.hurt:clone()
+      shapeA.sprite.currentState = 'hurt'
     end
   end
 end
@@ -64,6 +67,7 @@ function love.load()
       sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
       highkicking = anim8.newAnimation('once', g('1-4,3'), 0.1),
       crouching = anim8.newAnimation('once', g('7,1'), 0.1),
+      hurt = anim8.newAnimation('once', g('3,5'), 0.1),
     }
 
   player = initSprite("alex", sprites.alex.image, {x=200, y=300}, 1, 'idle',
@@ -149,6 +153,9 @@ function love.load()
         self.currentAnimation = self.animation.crouching
         self.currentState = 'crouching'
       elseif self.currentState == 'crouching' and math.random(1, 50) == 1 then
+        self.currentAnimation = self.animation.idle
+        self.currentState = 'idle'
+      elseif self.currentState == 'hurt' and self.currentAnimation.status == 'finished' then
         self.currentAnimation = self.animation.idle
         self.currentState = 'idle'
       end
