@@ -9,53 +9,65 @@ function love.load()
     animation = {
       idle = anim8.newAnimation('once', g('1,1'), 0.1),
       walking = anim8.newAnimation('loop', g('2-3,1'), 0.1),
-      punching = anim8.newAnimation('loop', g('1-3,2'), 0.1),
-      uppercutting = anim8.newAnimation('loop', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
-      sidekicking = anim8.newAnimation('loop', g('1-3,3'), 0.1),
-      highkicking = anim8.newAnimation('loop', g('1-4,3'), 0.1),
+      punching = anim8.newAnimation('once', g('1-3,2'), 0.1),
+      uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
+      sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
+      highkicking = anim8.newAnimation('once', g('1-4,3'), 0.1),
     },
     pos = {x=100, y=200},
     direction = 1,
+    currentState = 'idle'
   }
   player.currentAnimation = player.animation.idle
 end
 
 function love.update(dt)
-  if love.keyboard.isDown("u") then
-    player.currentAnimation = player.animation.uppercutting
-  elseif love.keyboard.isDown("i") then
-    player.currentAnimation = player.animation.punching
-  elseif love.keyboard.isDown("j") then
-    player.currentAnimation = player.animation.highkicking
-  elseif love.keyboard.isDown("k") then
-    player.currentAnimation = player.animation.sidekicking
-  else
-    local pressed = false
-    if love.keyboard.isDown("w") then
-      player.pos.y = player.pos.y - 1
-      pressed = true
-    end
-    if love.keyboard.isDown("s") then
-      player.pos.y = player.pos.y + 1
-      pressed = true
-    end
-    if love.keyboard.isDown("a") then
-      player.pos.x = player.pos.x - 1
-      pressed = true
-      player.direction = -1
-    end
-    if love.keyboard.isDown("d") then
-      player.pos.x = player.pos.x + 1
-      pressed = true
-      player.direction = 1
-    end
-
-
-    if pressed then 
-      player.currentAnimation = player.animation.walking
+  if player.currentState == 'idle' or player.currentState == 'walking' then
+    if love.keyboard.isDown("u") then
+      player.currentAnimation = player.animation.uppercutting:clone()
+      player.currentState = 'attacking'
+    elseif love.keyboard.isDown("i") then
+      player.currentAnimation = player.animation.punching:clone()
+      player.currentState = 'attacking'
+    elseif love.keyboard.isDown("j") then
+      player.currentAnimation = player.animation.highkicking:clone()
+      player.currentState = 'attacking'
+    elseif love.keyboard.isDown("k") then
+      player.currentAnimation = player.animation.sidekicking:clone()
+      player.currentState = 'attacking'
     else
-      player.currentAnimation = player.animation.idle
+      local pressed = false
+      if love.keyboard.isDown("w") then
+        player.pos.y = player.pos.y - 1
+        pressed = true
+      end
+      if love.keyboard.isDown("s") then
+        player.pos.y = player.pos.y + 1
+        pressed = true
+      end
+      if love.keyboard.isDown("a") then
+        player.pos.x = player.pos.x - 1
+        pressed = true
+        player.direction = -1
+      end
+      if love.keyboard.isDown("d") then
+        player.pos.x = player.pos.x + 1
+        pressed = true
+        player.direction = 1
+      end
+
+
+      if pressed then
+        player.currentAnimation = player.animation.walking
+        player.currentState = 'walking'
+      else
+        player.currentAnimation = player.animation.idle
+        player.currentState = 'idle'
+      end
     end
+  elseif player.currentState == 'attacking' and player.currentAnimation.status == 'finished' then
+    player.currentAnimation = player.animation.idle
+    player.currentState = 'idle'
   end
 
   player.currentAnimation:update(dt)
