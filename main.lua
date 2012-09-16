@@ -74,8 +74,8 @@ function love.load()
       hurt = anim8.newAnimation('once', g('3,5'), 0.1),
     }
 
-  cam = Camera.new(200, 300, 1, 0)
-  player = initSprite("alex", sprites.alex.image, {x=200, y=300}, 1, 'idle',
+  cam = Camera.new(980, 1260, 1, 0)
+  player = initSprite("alex", sprites.alex.image, {x=980, y=1260}, 1, 'idle',
     sprites.alex.animation.idle, sprites.alex.animation,
     function(self, dt)
       if self.currentState == 'idle' or self.currentState == 'walking' then
@@ -158,7 +158,7 @@ function love.load()
         self.attackRegion:draw('fill', 16)
       end
     end)
-  dummy = initSprite("ryan", sprites.ryan.image, {x=250, y=300}, -1, 'idle',
+  dummy = initSprite("ryan", sprites.ryan.image, {x=1080, y=1260}, -1, 'idle',
     sprites.ryan.animation.idle, sprites.ryan.animation,
     function(self, dt)
       if self.currentState == 'idle' and math.random(1, 10) == 1 then
@@ -197,6 +197,7 @@ function love.draw()
     dummy.sprite:draw()
   end)
   love.graphics.print("Adventure game", 0, 0)
+  love.graphics.print(string.format("(%d, %d)", cam.x, cam.y), 700, 0)
 end
 
 
