@@ -33,7 +33,8 @@ function onCollide(dt, shapeA, shapeB)
   if shapeA == dummy and shapeB.type then
     if (shapeB.type == 'high' and (
             shapeA.sprite.currentState == 'idle' or shapeA.sprite.currentState == 'hurt')) or
-       (shapeB.type == 'mid') then
+       (shapeB.type == 'mid') or
+       (shapeB.type == 'low') then
       print("hit")
       shapeA:move(1, 0)
       shapeA.sprite.pos.x = shapeA.sprite.pos.x + 1
@@ -58,7 +59,7 @@ function love.load()
       punching = anim8.newAnimation('once', g('1-3,2'), 0.1),
       uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
       sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
-      highkicking = anim8.newAnimation('once', g('1-4,3'), 0.1),
+      lowkicking = anim8.newAnimation('once', g('5,3'), 0.1),
       crouching = anim8.newAnimation('once', g('7,1'), 0.1),
     }
   sprites.ryan = {image=ryan}
@@ -96,11 +97,21 @@ function love.load()
             self.attackRegion.name = 'punch'
           end
         elseif love.keyboard.isDown("j") then
-          self.currentAnimation = self.animation.highkicking:clone()
+          self.currentAnimation = self.animation.lowkicking:clone()
           self.currentState = 'attacking'
+          if self.attackRegion == nil or (self.attackRegion and self.attackRegion.name ~= 'lowkick') then
+            self.attackRegion = Collider:addCircle(self.pos.x + 24, self.pos.y + 12, 4)
+            self.attackRegion.type = 'low'
+            self.attackRegion.name = 'lowkick'
+          end
         elseif love.keyboard.isDown("k") then
           self.currentAnimation = self.animation.sidekicking:clone()
           self.currentState = 'attacking'
+          if self.attackRegion == nil or (self.attackRegion and self.attackRegion.name ~= 'sidekick') then
+            self.attackRegion = Collider:addCircle(self.pos.x + 24, self.pos.y + 12, 4)
+            self.attackRegion.type = 'mid'
+            self.attackRegion.name = 'sidekick'
+          end
         else
           local pressed = false
           if love.keyboard.isDown("w") then
