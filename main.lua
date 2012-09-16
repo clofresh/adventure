@@ -1,7 +1,8 @@
 local anim8 = require 'anim8'
 local HC = require 'lib/HardonCollider'
+local Camera = require 'lib/hump/camera'
 local debug = false 
-local player, Collider, dummy, sprites
+local player, Collider, dummy, sprites, cam
 sprites = {}
 
 function initSprite(name, image, startPos, startDir, startState, startAnimation, animation, updateFunc, drawFunc)
@@ -71,6 +72,7 @@ function love.load()
       hurt = anim8.newAnimation('once', g('3,5'), 0.1),
     }
 
+  cam = Camera.new(200, 300, 1, 0)
   player = initSprite("alex", sprites.alex.image, {x=200, y=300}, 1, 'idle',
     sprites.alex.animation.idle, sprites.alex.animation,
     function(self, dt)
@@ -138,6 +140,8 @@ function love.load()
 
       self.currentAnimation:update(dt)
       self.parent:moveTo(self.pos.x + 11 , self.pos.y + 16)
+      cam.x = self.pos.x
+      cam.y = self.pos.y
     end,
     function(self)
       local ox, oy
@@ -181,12 +185,14 @@ function love.update(dt)
 end
 
 function love.draw()
-  if debug then
-    player:draw('fill')
-    dummy:draw('fill')
-  end
-  player.sprite:draw()
-  dummy.sprite:draw()
+  cam:draw(function()
+    if debug then
+      player:draw('fill')
+      dummy:draw('fill')
+    end
+    player.sprite:draw()
+    dummy.sprite:draw()
+  end)
 end
 
 
