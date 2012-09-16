@@ -185,6 +185,7 @@ function love.update(dt)
 end
 
 function love.draw()
+  love.graphics.print("Adventure game", 0, 0)
   cam:draw(function()
     if debug then
       player:draw('fill')
@@ -193,6 +194,7 @@ function love.draw()
     player.sprite:draw()
     dummy.sprite:draw()
   end)
+
 end
 
 
