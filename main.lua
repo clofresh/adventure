@@ -1,8 +1,9 @@
-local anim8 = require 'anim8'
+local anim8 = require 'lib/anim8/anim8'
 local HC = require 'lib/HardonCollider'
 local Camera = require 'lib/hump/camera'
+local loader = require("lib/Advanced-Tiled-Loader").Loader
 local debug = false 
-local player, Collider, dummy, sprites, cam
+local player, Collider, dummy, sprites, cam, world
 sprites = {}
 
 function initSprite(name, image, startPos, startDir, startState, startAnimation, animation, updateFunc, drawFunc)
@@ -44,6 +45,7 @@ end
 
 function love.load()
   Collider = HC(100, onCollide)
+  world = loader.load('world.tmx')
 
   local alex, ryan
   alex = love.graphics.newImage('rivercityransom_alex_sheet.png')
@@ -185,8 +187,8 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.print("Adventure game", 0, 0)
   cam:draw(function()
+    world:draw()
     if debug then
       player:draw('fill')
       dummy:draw('fill')
@@ -194,7 +196,7 @@ function love.draw()
     player.sprite:draw()
     dummy.sprite:draw()
   end)
-
+  love.graphics.print("Adventure game", 0, 0)
 end
 
 
