@@ -115,20 +115,20 @@ function love.load()
         else
           local pressed = false
           if love.keyboard.isDown("w") then
-            self.pos.y = self.pos.y - 1
+            self.pos.y = self.pos.y - 2
             pressed = true
           end
           if love.keyboard.isDown("s") then
-            self.pos.y = self.pos.y + 1
+            self.pos.y = self.pos.y + 2
             pressed = true
           end
           if love.keyboard.isDown("a") then
-            self.pos.x = self.pos.x - 1
+            self.pos.x = self.pos.x - 2
             pressed = true
             self.direction = -1
           end
           if love.keyboard.isDown("d") then
-            self.pos.x = self.pos.x + 1
+            self.pos.x = self.pos.x + 2
             pressed = true
             self.direction = 1
           end
