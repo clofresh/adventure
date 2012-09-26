@@ -44,6 +44,9 @@ end
 function AnimationSet:draw(sprite)
   self.currentAnimation:draw(self.image, sprite.pos.x, sprite.pos.y, 0, sprite.pos.dir, 1, 0, 0)
 end
+function AnimationSet:isFinished()
+  return self.currentAnimation and self.currentAnimation.status == 'finished'
+end
 
 return {
   load = load,

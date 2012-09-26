@@ -17,9 +17,15 @@ function World:register(sprite)
   self.sprites[shape] = sprite
 end
 
+function World:unregister(sprite)
+  shape = sprite.shape
+  self.collider:remove(shape)
+  self.sprites[shape] = nil
+end
+
 function World:update(dt)
   for shape, sprite in pairs(self.sprites) do
-    sprite:update(dt)
+    sprite:update(dt, self)
   end
   if self.focus then
     self.cam.x = self.focus.pos.x
