@@ -2,7 +2,8 @@ local Camera = require 'lib/hump/camera'
 local Class = require 'lib/hump/class'
 local HC = require 'lib/HardonCollider'
 
-World = Class{function(self)
+World = Class{function(self, map)
+  self.map = map
   self.sprites = {}
   self.collider = HC(100, function(dt, shapeA, shapeB, mtvX, mtvY)
     self:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
@@ -29,6 +30,7 @@ end
 
 function World:draw()
   self.cam:draw(function()
+    self.map:draw()
     for shape, sprite in pairs(self.sprites) do
       sprite:draw()
     end
