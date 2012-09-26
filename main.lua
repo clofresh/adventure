@@ -6,14 +6,16 @@ local Sprite = sprite.Sprite
 local Position = sprite.Position
 local Dimensions = sprite.Dimensions
 local World = require('src/world').World
+local graphics = require('src/graphics')
 
 local player, npc, world
 
-
 function love.load()
+  graphics.load()
   world = World()
-  player = Player("Player", Position(100, 100, 1), Dimensions(16, 32))
-  npc = Sprite("NPC", Position(100, 200, 1), Dimensions(16, 32))
+  player = Player("Player", Position(100, 100, 1), Dimensions(16, 32), graphics.animations.alex, 'idle')
+  player:setState('idle')
+  npc = Sprite("NPC", Position(100, 200, 1), Dimensions(16, 32), graphics.animations.ryan, 'idle')
   world:register(player)
   world:register(npc)
 end
