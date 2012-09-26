@@ -18,6 +18,7 @@ function love.load()
   npc = Sprite("NPC", Position(100, 200, 1), Dimensions(16, 32), graphics.animations.ryan, 'idle')
   world:register(player)
   world:register(npc)
+  world:focusOn(player)
 end
 
 function love.update(dt)
