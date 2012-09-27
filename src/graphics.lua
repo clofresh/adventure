@@ -2,6 +2,31 @@ local Class = require 'lib/hump/class'
 local anim8 = require 'lib/anim8/anim8'
 local animations = {}
 
+local AnimationSet = Class{function(self, image, animations)
+  self.image = image
+  self.animations = animations
+  self.currentAnimation = nil
+end}
+
+function AnimationSet:setAnimation(name)
+  if self.animations[name] then
+    self.currentAnimation = self.animations[name]:clone()
+  end
+end
+function AnimationSet:update(dt, sprite)
+  if self.currentAnimation then
+    self.currentAnimation:update(dt)
+  end
+end
+function AnimationSet:draw(sprite)
+  if self.currentAnimation then
+    self.currentAnimation:draw(self.image, sprite.pos.x, sprite.pos.y, 0, sprite.pos.dir, 1, 0, 0)
+  end
+end
+function AnimationSet:isFinished()
+  return self.currentAnimation and self.currentAnimation.status == 'finished'
+end
+
 function load()
   local alex = love.graphics.newImage('rivercityransom_alex_sheet.png')
   local g = anim8.newGrid(40, 40, alex:getWidth(), alex:getHeight())
@@ -27,31 +52,6 @@ function load()
       crouching = anim8.newAnimation('once', g('7,1'), 0.1),
       hurt = anim8.newAnimation('once', g('3,5'), 0.1),
     })
-end
-
-AnimationSet = Class{function(self, image, animations)
-  self.image = image
-  self.animations = animations
-  self.currentAnimation = nil
-end}
-
-function AnimationSet:setAnimation(name)
-  if self.animations[name] then
-    self.currentAnimation = self.animations[name]:clone()
-  end
-end
-function AnimationSet:update(dt, sprite)
-  if self.currentAnimation then
-    self.currentAnimation:update(dt)
-  end
-end
-function AnimationSet:draw(sprite)
-  if self.currentAnimation then
-    self.currentAnimation:draw(self.image, sprite.pos.x, sprite.pos.y, 0, sprite.pos.dir, 1, 0, 0)
-  end
-end
-function AnimationSet:isFinished()
-  return self.currentAnimation and self.currentAnimation.status == 'finished'
 end
 
 return {

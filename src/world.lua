@@ -2,7 +2,7 @@ local Camera = require 'lib/hump/camera'
 local Class = require 'lib/hump/class'
 local HC = require 'lib/HardonCollider'
 
-World = Class{function(self, map)
+local World = Class{function(self, map)
   self.map = map
   self.sprites = {}
   self.collider = HC(100, function(dt, shapeA, shapeB, mtvX, mtvY)

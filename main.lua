@@ -7,6 +7,8 @@ local sprite = require('src/sprite')
 local Sprite = sprite.Sprite
 local Position = sprite.Position
 local Dimensions = sprite.Dimensions
+local Player = sprite.Player
+local NPC = sprite.NPC
 local World = require('src/world').World
 local graphics = require('src/graphics')
 

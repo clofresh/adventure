@@ -1,6 +1,6 @@
 local Class = require 'lib/hump/class'
 
-Position = Class{function(self, x, y, dir)
+local Position = Class{function(self, x, y, dir)
   self.x = x
   self.y = y
   self.dir = dir
@@ -24,12 +24,12 @@ function Position:clone()
   return Position(self.x, self.y, self.dir)
 end
 
-Dimensions = Class{function(self, w, h)
+local Dimensions = Class{function(self, w, h)
   self.w = w
   self.h = h
 end}
 
-Sprite = Class{function(self, name, pos, dim, animationSet, state)
+local Sprite = Class{function(self, name, pos, dim, animationSet, state)
   self.name = name
   self.pos = pos
   self.dim = dim
@@ -79,7 +79,7 @@ function Sprite:applyDamage(attacker, amount, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
 end
 
-NPC = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
+local NPC = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
 end}
 
@@ -89,7 +89,7 @@ function NPC:applyDamage(attacker, amount, mtvX, mtvY)
   Sprite.applyDamage(self, attacker, amount, mtvX, mtvY)
 end
 
-Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
+local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
 end}
 
@@ -97,7 +97,7 @@ function Player:onCollide(dt, otherSprite, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
 end
 
-Attack = Class{inherits=Sprite, function(self, name, pos, dim, type)
+local Attack = Class{inherits=Sprite, function(self, name, pos, dim, type)
   Sprite.construct(self, name, pos, dim)
   self.type = type
 end}
@@ -205,5 +205,7 @@ return {
   Position   = Position,
   Dimensions = Dimensions,
   Sprite     = Sprite,
+  Player     = Player,
+  NPC        = NPC
 }
 
