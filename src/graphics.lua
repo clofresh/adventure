@@ -36,13 +36,19 @@ AnimationSet = Class{function(self, image, animations)
 end}
 
 function AnimationSet:setAnimation(name)
-  self.currentAnimation = self.animations[name]:clone()
+  if self.animations[name] then
+    self.currentAnimation = self.animations[name]:clone()
+  end
 end
 function AnimationSet:update(dt, sprite)
-  self.currentAnimation:update(dt)
+  if self.currentAnimation then
+    self.currentAnimation:update(dt)
+  end
 end
 function AnimationSet:draw(sprite)
-  self.currentAnimation:draw(self.image, sprite.pos.x, sprite.pos.y, 0, sprite.pos.dir, 1, 0, 0)
+  if self.currentAnimation then
+    self.currentAnimation:draw(self.image, sprite.pos.x, sprite.pos.y, 0, sprite.pos.dir, 1, 0, 0)
+  end
 end
 function AnimationSet:isFinished()
   return self.currentAnimation and self.currentAnimation.status == 'finished'

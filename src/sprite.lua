@@ -34,7 +34,7 @@ Sprite = Class{function(self, name, pos, dim, animationSet, state)
   self.pos = pos
   self.dim = dim
   self.animationSet = animationSet
-  self:setState(state)
+  self.state = state
 end}
 
 function Sprite:initShape(collider)
@@ -43,20 +43,19 @@ function Sprite:initShape(collider)
   return self.shape
 end
 
-function Sprite:setState(state)
-  self.state = state
-  if self.animationSet then
-    self.animationSet:setAnimation(state)
-  end
-end
-
 function Sprite:animationFinished()
   return self.animationSet and self.animationSet:isFinished()
 end
 
+function Sprite:setAnimation(name)
+  if self.animationSet then
+    self.animationSet:setAnimation(name)
+  end
+end
+
 function Sprite:update(dt, world)
-  if self:animationFinished() then
-    self:setState('idle')
+  if self.state then
+    self.state = self.state(dt, world, self)
   end
   self.shape:moveTo(self.pos.x, self.pos.y)
   if self.animationSet then
@@ -76,52 +75,23 @@ end
 function Sprite:onCollide(dt, otherSprite, mtvX, mtvY)
 end
 
-Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
+function Sprite:applyDamage(attacker, amount, mtvX, mtvY)
+  self.pos:move(mtvX, mtvY)
+end
+
+NPC = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
 end}
 
-function Player:update(dt, world)
-  if self.state == 'idle' or self.state == 'walking' then
-    if love.keyboard.isDown('u') then
-      self:setState('uppercutting')
-      local attackPos = self.pos:clone():move(24, 12)
-      local attackDim = Dimensions(4, 4)
-      self.attack = Attack('uppercut', attackPos, attackDim, 'mid')
-      world:register(self.attack)
-    else
-      local moved = false
-      if love.keyboard.isDown("w") then
-        self.pos:moveY(-2)
-        moved = true
-      end
-      if love.keyboard.isDown("s") then
-        self.pos:moveY(2)
-        moved = true
-      end
-      if love.keyboard.isDown("a") then
-        self.pos:moveX(-2)
-        moved = true
-      end
-      if love.keyboard.isDown("d") then
-        self.pos:moveX(2)
-        moved = true
-      end
-
-      if moved and self.state ~= 'walking' then
-        self:setState('walking')
-      elseif not moved and self.state == 'walking' then
-        self:setState('idle')
-      end
-    end
-  elseif self:animationFinished() then
-    if self.attack then
-      world:unregister(self.attack)
-      self.attack = nil
-    end
-  end
-
-  Sprite.update(self, dt)
+function NPC:applyDamage(attacker, amount, mtvX, mtvY)
+  self.state = Sprite.Hurt
+  self:setAnimation('hurt')
+  Sprite.applyDamage(self, attacker, amount, mtvX, mtvY)
 end
+
+Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
+  Sprite.construct(self, name, pos, dim, animationSet, state)
+end}
 
 function Player:onCollide(dt, otherSprite, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
@@ -133,9 +103,103 @@ Attack = Class{inherits=Sprite, function(self, name, pos, dim, type)
 end}
 
 function Attack:onCollide(dt, otherSprite, mtvX, mtvY)
-  otherSprite.pos:move(mtvX, mtvY)
-  otherSprite:setState('hurt')
+  otherSprite:applyDamage(self, 10, mtvX, mtvY)
 end
+
+function Sprite.Idle(dt, world, sprite)
+  return Sprite.Idle
+end
+
+function Sprite.Hurt(dt, world, sprite)
+  if sprite:animationFinished() then
+    sprite:setAnimation('idle')
+    return Sprite.Idle
+  else
+    return Sprite.Hurt
+  end
+end
+
+function Player.Uppercutting(dt, world, sprite)
+  local nextState
+  if sprite:animationFinished() and sprite.attack then
+    world:unregister(sprite.attack)
+    sprite.attack = nil
+    nextState = Player.Idle
+    sprite:setAnimation('idle')
+  else
+    nextState = Player.Uppercutting
+  end
+  return nextState
+end
+
+function Player.Idle(dt, world, sprite)
+  local keysPressed = world:keysPressed()
+  local nextState = Player.Idle
+  if keysPressed['u'] then
+    nextState = Player.Uppercutting
+    sprite:setAnimation('uppercutting')
+    local attackPos = sprite.pos:clone():move(24, 12)
+    local attackDim = Dimensions(4, 4)
+    sprite.attack = Attack('uppercut', attackPos, attackDim, 'mid')
+    world:register(sprite.attack)
+  else
+    local moved = false
+    if keysPressed["w"] then
+      sprite.pos:moveY(-2)
+      moved = true
+    end
+    if keysPressed["s"] then
+      sprite.pos:moveY(2)
+      moved = true
+    end
+    if keysPressed["a"] then
+      sprite.pos:moveX(-2)
+      moved = true
+    end
+    if keysPressed["d"] then
+      sprite.pos:moveX(2)
+      moved = true
+    end
+
+    if moved then
+      nextState = Player.Walking
+      sprite:setAnimation('walking')
+    end
+  end
+
+  return nextState
+end
+
+function Player.Walking(dt, world, sprite)
+  local keysPressed = world:keysPressed()
+  local moved = false
+  local nextState
+  if keysPressed["w"] then
+    sprite.pos:moveY(-2)
+    moved = true
+  end
+  if keysPressed["s"] then
+    sprite.pos:moveY(2)
+    moved = true
+  end
+  if keysPressed["a"] then
+    sprite.pos:moveX(-2)
+    moved = true
+  end
+  if keysPressed["d"] then
+    sprite.pos:moveX(2)
+    moved = true
+  end
+
+  if moved then
+    nextState = Player.Walking
+  else
+    nextState = Player.Idle
+    sprite:setAnimation('idle')
+  end
+  return nextState
+end
+
 
 return {
   Position   = Position,

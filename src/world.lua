@@ -10,6 +10,7 @@ World = Class{function(self, map)
   end)
   self.cam = Camera.new(980, 1260, 1, 0)
   self.focus = nil
+  self._keysPressed = {}
 end}
 
 function World:register(sprite)
@@ -53,6 +54,18 @@ function World:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
   spriteB = self.sprites[shapeB]
   spriteA:onCollide(dt, spriteB, mtvX, mtvY)
   spriteB:onCollide(dt, spriteA, mtvX, mtvY)
+end
+
+function World:pressedKey(key)
+  self._keysPressed[key] = true
+end
+
+function World:releasedKey(key)
+  self._keysPressed[key] = nil
+end
+
+function World:keysPressed()
+  return self._keysPressed
 end
 
 return {
