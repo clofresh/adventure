@@ -28,16 +28,16 @@ function AnimationSet:isFinished()
 end
 
 function load()
-  local alex = love.graphics.newImage('rivercityransom_alex_sheet.png')
-  local g = anim8.newGrid(40, 40, alex:getWidth(), alex:getHeight())
+  local alex = love.graphics.newImage('rivercityransom_alex_sheet_big.png')
+  local g = anim8.newGrid(64, 64, alex:getWidth(), alex:getHeight())
   animations.alex = AnimationSet(alex, {
     idle = anim8.newAnimation('once', g('1,1'), 0.1),
-    walking = anim8.newAnimation('loop', g('2-3,1'), 0.1),
-    punching = anim8.newAnimation('once', g('1-3,2'), 0.1),
-    uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
-    sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
-    lowkicking = anim8.newAnimation('once', g('5,3'), 0.1),
-    crouching = anim8.newAnimation('once', g('7,1'), 0.1),
+    walking = anim8.newAnimation('loop', g('1-2,2'), 0.1),
+    punching = anim8.newAnimation('once', g('1-3,3'), 0.1),
+    uppercutting = anim8.newAnimation('once', g('1-3,4'), 0.1, {0.2, 0.1, 0.2}),
+    -- sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
+    -- lowkicking = anim8.newAnimation('once', g('5,3'), 0.1),
+    -- crouching = anim8.newAnimation('once', g('7,1'), 0.1),
   })
 
   local ryan = love.graphics.newImage('rivercityransom_ryan_sheet.png')

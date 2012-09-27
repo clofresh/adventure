@@ -38,7 +38,7 @@ local Sprite = Class{function(self, name, pos, dim, animationSet, state)
 end}
 
 function Sprite:initShape(collider)
-  self.shape = collider:addRectangle(self.pos.x, self.pos.y,
+  self.shape = collider:addRectangle(self.pos.x + (self.dim.w / 2), self.pos.y + (self.dim.h / 2),
                                      self.dim.w, self.dim.h)
   return self.shape
 end
@@ -57,7 +57,7 @@ function Sprite:update(dt, world)
   if self.state then
     self.state = self.state(dt, world, self)
   end
-  self.shape:moveTo(self.pos.x, self.pos.y)
+  self.shape:moveTo(self.pos.x + (self.dim.w / 2), self.pos.y + (self.dim.h / 2))
   if self.animationSet then
     self.animationSet:update(dt, self)
   end
