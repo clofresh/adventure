@@ -11,8 +11,16 @@ end}
 function AnimationSet:tostring()
   local status, frame
   if self.currentAnimation then
-    status = self.currentAnimation.status
-    frame = self.currentAnimation.frame
+    if self.currentAnimation.status then
+      status = self.currentAnimation.status
+    else
+      status = 'nil'
+    end
+    if self.currentAnimation.frame then
+      frame = self.currentAnimation.frame
+    else
+      frame = 'nil'
+    end
   else
     status = 'nil'
     frame = 'nil'

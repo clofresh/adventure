@@ -61,6 +61,20 @@ function State:update(dt, world, sprite)
   return self:updateCallback(dt, world, sprite)
 end
 
+function State:transitionIn(prevState, dt, world, sprite)
+  if prevState ~= self then
+    local p
+    if prevState then
+      p = prevState:tostring()
+    else
+      p = 'nil'
+    end
+
+    log("%s: %s -> %s", sprite.name, p, self:tostring())
+  end
+  return self
+end
+
 function State:tostring()
   return string.format("state: %s", self.name)
 end
@@ -70,7 +84,7 @@ local Sprite = Class{function(self, name, pos, dim, animationSet, state)
   self.pos = pos
   self.dim = dim
   self.animationSet = animationSet
-  self.state = state
+  self.state = state:transitionIn(nil, 0, nil, self)
 end}
 
 function Sprite:initShape(collider)
@@ -183,9 +197,9 @@ Player.Uppercutting = State('Player.Uppercutting', function(self, dt, world, spr
 end)
 
 Player.Idle = State('Player.Idle', function(self, dt, world, sprite)
-  sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   local keysPressed = world:keysPressed()
   local nextState = Player.Idle
+  local dx, dy
   if keysPressed['u'] then
     nextState = Player.Uppercutting
     sprite:setAnimation('uppercutting')
@@ -195,7 +209,6 @@ Player.Idle = State('Player.Idle', function(self, dt, world, sprite)
     world:register(sprite.attack)
   else
     local moved = false
-    local dx, dy
     dx, dy = 0, 0
     if keysPressed["w"] then
       dy = -2
@@ -214,14 +227,18 @@ Player.Idle = State('Player.Idle', function(self, dt, world, sprite)
 
 
     if moved then
-      sprite.pos:move(dx, dy)
       nextState = Player.Walking
-      sprite:setAnimation('walking'..sprite.pos:spriteDir(), false)
     end
   end
 
-  return nextState
+  return nextState:transitionIn(Player.Idle, dt, world, sprite, dx, dy)
 end)
+
+function Player.Idle:transitionIn(prevState, dt, world, sprite)
+  State.transitionIn(self, prevState, dt, world, sprite)
+  sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
+  return Player.Idle
+end
 
 Player.Walking = State('Player.Walking', function(self, dt, world, sprite)
   prevSpriteDir = sprite.pos:spriteDir()
@@ -247,18 +264,23 @@ Player.Walking = State('Player.Walking', function(self, dt, world, sprite)
 
 
   if moved then
-    sprite.pos:move(dx, dy)
     nextState = Player.Walking
-    local newSpriteDir = sprite.pos:spriteDir()
-    if prevSpriteDir ~= newSpriteDir then
-      sprite:setAnimation('walking'..newSpriteDir, true)
-    end
   else
     nextState = Player.Idle
-    sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   end
-  return nextState
+  return nextState:transitionIn(Player.Walking, dt, world, sprite, dx, dy)
 end)
+
+function Player.Walking:transitionIn(prevState, dt, world, sprite, dx, dy)
+  State.transitionIn(self, prevState, dt, world, sprite)
+  local prevSpriteDir = sprite.pos:spriteDir()
+  sprite.pos:move(dx, dy)
+  local newSpriteDir = sprite.pos:spriteDir()
+  if prevSpriteDir ~= newSpriteDir or prevState ~= self then
+    sprite:setAnimation('walking'..newSpriteDir, true)
+  end
+  return Player.Walking
+end
 
 local exports = {
   Position   = Position,
