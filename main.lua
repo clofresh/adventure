@@ -16,8 +16,8 @@ local world
 
 function love.load()
   graphics.load()
-  world = World(ATL.load('world.tmx'))
-  player = Player("Player", Position(100, 100, 0, 1), Dimensions(32, 48), graphics.animations.alex, Player.Idle)
+  world = World(ATL.load('maps/meadow.tmx'))
+  player = Player("Player", Position(200, 100, 0, 1), Dimensions(32, 48), graphics.animations.alex, Player.Idle)
   player:setAnimation('idleS')
   --npc = NPC("NPC", Position(100, 200, 1), Dimensions(16, 32), graphics.animations.ryan, Sprite.Idle)
   --npc:setAnimation('idle')

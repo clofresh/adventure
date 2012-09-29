@@ -108,6 +108,9 @@ end}
 
 function Player:onCollide(dt, otherSprite, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
+  if otherSprite.properties.obstruction then
+    self.pos:move(-2.0 * mtvX, -2.0 * mtvY)
+  end
 end
 
 local Attack = Class{inherits=Sprite, function(self, name, pos, dim, type)

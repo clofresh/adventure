@@ -3,11 +3,43 @@ local Class = require 'lib/hump/class'
 local HC = require 'lib/HardonCollider'
 
 local World = Class{function(self, map)
-  self.map = map
-  self.sprites = {}
   self.collider = HC(100, function(dt, shapeA, shapeB, mtvX, mtvY)
     self:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
   end)
+  self.sprites = {}
+
+  -- prepare the map object
+  map.drawObjects = false
+  map:newCustomLayer("sprites", 4, {
+    update = function(layer, dt)
+      for shape, sprite in pairs(self.sprites) do
+        sprite:update(dt, self)
+      end
+    end,
+    draw = function(layer)
+      for shape, sprite in pairs(self.sprites) do
+        sprite:draw()
+      end
+    end
+  })
+  local shape
+  for i, obj in pairs( map("trees").objects ) do
+    obj.shape = self.collider:addRectangle(obj.x, obj.y,
+      obj.width, obj.height)
+    self.sprites[obj.shape] = obj
+    obj.properties.obstruction = true
+    obj.update = function(dt, world)
+    end
+    obj.onCollide = function(dt, otherSprite, mtvX, mtvY)
+    end
+    obj.draw = function()
+      if debugMode then
+        obj.shape:draw('fill')
+      end
+    end
+  end
+
+  self.map = map
   self.cam = Camera.new(980, 1260, 1, 0)
   self.focus = nil
   self._keysPressed = {}
@@ -25,9 +57,7 @@ function World:unregister(sprite)
 end
 
 function World:update(dt)
-  for shape, sprite in pairs(self.sprites) do
-    sprite:update(dt, self)
-  end
+  self.map:callback("update", dt)
   if self.focus then
     self.cam.x = self.focus.pos.x
     self.cam.y = self.focus.pos.y
@@ -38,9 +68,6 @@ end
 function World:draw()
   self.cam:draw(function()
     self.map:draw()
-    for shape, sprite in pairs(self.sprites) do
-      sprite:draw()
-    end
   end)
 end
 
