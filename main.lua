@@ -15,7 +15,10 @@ local graphics = require('src/graphics')
 local world
 
 function love.load()
-  local map
+  local map, music
+  music = love.audio.newSource("audio/Calmtown.ogg")
+  music:setLooping(true)
+  love.audio.play(music)
   local sprites = {}
 
   graphics.load()
@@ -23,7 +26,6 @@ function love.load()
   for i, obj in pairs(map("sprites").objects) do    
     table.insert(sprites, sprite.fromTmx(obj))
   end
-
   world = World(map, sprites)
   --player = Player("Player", Position(200, 100, 0, 1), Dimensions(32, 48), graphics.animations.alex, Player.Idle)
   --player:setAnimation('idleS')
