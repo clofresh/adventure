@@ -24,6 +24,27 @@
    eJxjYBjcQBiIRYBYlErqJYFYCoiliTSPkHp5IFYAYkUizSNVPQiQGgaEzCA1DLABZDPI8RM6oIYZo2BkAGrkB2SAnJZJMRuXWuS0TIrZ2NQi60Fmo5uNzT3Y3IGsB10/eh7EV07A1AIAXxQJSQ==
   </data>
  </layer>
+ <objectgroup name="sprites" width="20" height="20">
+  <properties>
+   <property name="focus" value="player"/>
+  </properties>
+  <object name="player" type="Player" x="288" y="576" width="32" height="32">
+   <properties>
+    <property name="animationSet" value="player"/>
+    <property name="dirX" value="0"/>
+    <property name="dirY" value="-1"/>
+    <property name="state" value="Idle"/>
+   </properties>
+  </object>
+  <object name="bee" type="Bee" x="416" y="320" width="32" height="32">
+   <properties>
+    <property name="animationSet" value="bee"/>
+    <property name="dirX" value="-1"/>
+    <property name="dirY" value="0"/>
+    <property name="state" value="Idle"/>
+   </properties>
+  </object>
+ </objectgroup>
  <layer name="high" width="20" height="20">
   <data encoding="base64" compression="zlib">
    eJxjYEAADSDWBGItIDYBYlMgNkOSxyaGD+gBsT4QGxCpHt0N6ACb/fjU43IDPj2E3IzNDfj0kBpm5OoZBSMbEMoHpAL0NE2s+bjUoadpYssGYtWhm0+sO4gF5JRl+MBwyeMAeZ8Odw==

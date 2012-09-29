@@ -38,9 +38,9 @@ function AnimationSet:isFinished()
 end
 
 function load()
-  local alex = love.graphics.newImage('astraea_walkcycle_norocket.png')
-  local g = anim8.newGrid(64, 64, alex:getWidth(), alex:getHeight())
-  animations.alex = AnimationSet(alex, {
+  local player = love.graphics.newImage('maps/tilesets/astraea_walkcycle_norocket.png')
+  local g = anim8.newGrid(64, 64, player:getWidth(), player:getHeight())
+  animations.player = AnimationSet(player, {
     idleN = anim8.newAnimation('once', g('1,1'), 0.1),
     idleW = anim8.newAnimation('once', g('1,2'), 0.1),
     idleS = anim8.newAnimation('once', g('1,3'), 0.1),
@@ -56,11 +56,13 @@ function load()
     -- crouching = anim8.newAnimation('once', g('7,1'), 0.1),
   })
 
-  local ryan = love.graphics.newImage('astraea_walkcycle_norocket.png')
-  local g = anim8.newGrid(64, 64, ryan:getWidth(), ryan:getHeight())
-  animations.ryan = AnimationSet(ryan, {
-      idle = anim8.newAnimation('once', g('1,2'), 0.1),
-      hurt = anim8.newAnimation('once', g('1,2'), 0.1),
+  local bee = love.graphics.newImage('maps/tilesets/bee.png')
+  local g = anim8.newGrid(32, 32, bee:getWidth(), bee:getHeight())
+  animations.bee = AnimationSet(bee, {
+    idleN = anim8.newAnimation('once', g('1-3,1'), 0.1),
+    idleW = anim8.newAnimation('once', g('1-3,2'), 0.1),
+    idleS = anim8.newAnimation('once', g('1-3,3'), 0.1),
+    idleE = anim8.newAnimation('once', g('1-3,4'), 0.1),
     })
 end
 

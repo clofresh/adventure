@@ -2,26 +2,35 @@ local Camera = require 'lib/hump/camera'
 local Class = require 'lib/hump/class'
 local HC = require 'lib/HardonCollider'
 
-local World = Class{function(self, map)
+local World = Class{function(self, map, sprites)
+  local spriteLayer = map("sprites")
+
   self.collider = HC(100, function(dt, shapeA, shapeB, mtvX, mtvY)
     self:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
   end)
+
   self.sprites = {}
+  self.focus = nil
+  for i, sprite in pairs(sprites) do
+    self:register(sprite)
+    if sprite.name == spriteLayer.properties.focus then
+      self.focus = sprite
+    end
+  end
 
   -- prepare the map object
   map.drawObjects = false
-  map:newCustomLayer("sprites", 4, {
-    update = function(layer, dt)
-      for shape, sprite in pairs(self.sprites) do
-        sprite:update(dt, self)
-      end
-    end,
-    draw = function(layer)
-      for shape, sprite in pairs(self.sprites) do
-        sprite:draw()
-      end
+  spriteLayer.update = function(layer, dt)
+    for shape, sprite in pairs(self.sprites) do
+      sprite:update(dt, self)
     end
-  })
+  end
+  spriteLayer.draw = function(layer)
+    for shape, sprite in pairs(self.sprites) do
+      sprite:draw()
+    end
+  end
+
   local shape
   for i, obj in pairs( map("trees").objects ) do
     obj.shape = self.collider:addRectangle(obj.x, obj.y,
@@ -41,7 +50,6 @@ local World = Class{function(self, map)
 
   self.map = map
   self.cam = Camera.new(980, 1260, 1, 0)
-  self.focus = nil
   self._keysPressed = {}
 end}
 

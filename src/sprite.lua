@@ -1,5 +1,6 @@
 local Class = require 'lib/hump/class'
 local vector = require 'lib/hump/vector-light'
+local graphics = require('src/graphics')
 
 local Position = Class{function(self, x, y, dirX, dirY)
   self.x = x
@@ -92,14 +93,21 @@ function Sprite:applyDamage(attacker, amount, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
 end
 
-local NPC = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
+local Bee = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
 end}
 
-function NPC:applyDamage(attacker, amount, mtvX, mtvY)
+function Bee:applyDamage(attacker, amount, mtvX, mtvY)
   self.state = Sprite.Hurt
   self:setAnimation('hurt')
   Sprite.applyDamage(self, attacker, amount, mtvX, mtvY)
+end
+
+function Bee.Idle(dt, world, sprite)
+  if sprite:animationFinished() or not sprite.animationSet.currentAnimation then
+    sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
+  end
+  return Bee.Idle
 end
 
 local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
@@ -108,7 +116,7 @@ end}
 
 function Player:onCollide(dt, otherSprite, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
-  if otherSprite.properties.obstruction then
+  if otherSprite.properties and otherSprite.properties.obstruction then
     self.pos:move(-2.0 * mtvX, -2.0 * mtvY)
   end
 end
@@ -149,6 +157,7 @@ function Player.Uppercutting(dt, world, sprite)
 end
 
 function Player.Idle(dt, world, sprite)
+  sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   local keysPressed = world:keysPressed()
   local nextState = Player.Idle
   if keysPressed['u'] then
@@ -225,12 +234,26 @@ function Player.Walking(dt, world, sprite)
   return nextState
 end
 
-
-return {
+local exports = {
   Position   = Position,
   Dimensions = Dimensions,
   Sprite     = Sprite,
   Player     = Player,
-  NPC        = NPC
+  Bee        = Bee,
 }
+
+function fromTmx(obj)
+  print("Loading " .. obj.type)
+  local cls = exports[obj.type]
+  return cls(
+    obj.name,
+    Position(obj.x, obj.y, obj.properties.dirX, obj.properties.dirY),
+    Dimensions(obj.width, obj.height),
+    graphics.animations[obj.properties.animationSet],
+    cls[obj.properties.state]
+  )
+end
+
+exports.fromTmx = fromTmx
+return exports
 
