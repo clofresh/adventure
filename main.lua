@@ -14,6 +14,10 @@ local graphics = require('src/graphics')
 
 local world
 
+function log(msg, ...)
+  print(os.date("%Y-%m-%dT%I:%M:%S%p") .. " - " .. string.format(msg, ...))
+end
+
 function love.load()
   local map, music
   music = love.audio.newSource("audio/Calmtown.ogg")

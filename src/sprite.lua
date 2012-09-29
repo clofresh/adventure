@@ -242,8 +242,7 @@ local exports = {
 }
 
 function fromTmx(obj)
-  print("Loading " .. obj.type)
-  print("w: "..obj.width..", h:"..obj.height)
+  log("Loading %s (w: %d, h: %d)", obj.type, obj.width, obj.height)
   local cls = exports[obj.type]
   return cls(
     obj.name,
