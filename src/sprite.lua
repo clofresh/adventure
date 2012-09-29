@@ -52,7 +52,7 @@ local Sprite = Class{function(self, name, pos, dim, animationSet, state)
 end}
 
 function Sprite:initShape(collider)
-  self.shape = collider:addRectangle(self.pos.x + (self.dim.w / 2), self.pos.y + (self.dim.h / 2),
+  self.shape = collider:addRectangle(self.pos.x, self.pos.y,
                                      self.dim.w, self.dim.h)
   return self.shape
 end
@@ -71,7 +71,7 @@ function Sprite:update(dt, world)
   if self.state then
     self.state = self.state(dt, world, self)
   end
-  self.shape:moveTo(self.pos.x + 32, self.pos.y + 40)
+  self.shape:moveTo(self.pos.x, self.pos.y)
   if self.animationSet then
     self.animationSet:update(dt, self)
   end
@@ -115,9 +115,8 @@ local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSe
 end}
 
 function Player:onCollide(dt, otherSprite, mtvX, mtvY)
-  self.pos:move(mtvX, mtvY)
   if otherSprite.properties and otherSprite.properties.obstruction then
-    self.pos:move(-2.0 * mtvX, -2.0 * mtvY)
+    self.pos:move(mtvX, mtvY)
   end
 end
 
@@ -244,6 +243,7 @@ local exports = {
 
 function fromTmx(obj)
   print("Loading " .. obj.type)
+  print("w: "..obj.width..", h:"..obj.height)
   local cls = exports[obj.type]
   return cls(
     obj.name,
