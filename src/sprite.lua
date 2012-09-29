@@ -38,10 +38,32 @@ function Position:clone()
   return Position(self.x, self.y, self.dirX, self.dirY)
 end
 
+function Position:tostring()
+  return string.format("x: %d, y: %d, dx: %d, dy: %d", self.x, self.y,
+                        self.dirX, self.dirY)
+end
+
 local Dimensions = Class{function(self, w, h)
   self.w = w
   self.h = h
 end}
+
+function Dimensions:tostring()
+  return string.format("w: %d, h: %d", self.w, self.h)
+end
+
+local State = Class{function(self, name, updateCallback)
+  self.name = name
+  self.updateCallback = updateCallback
+end}
+
+function State:update(dt, world, sprite)
+  return self:updateCallback(dt, world, sprite)
+end
+
+function State:tostring()
+  return string.format("state: %s", self.name)
+end
 
 local Sprite = Class{function(self, name, pos, dim, animationSet, state)
   self.name = name
@@ -69,7 +91,7 @@ end
 
 function Sprite:update(dt, world)
   if self.state then
-    self.state = self.state(dt, world, self)
+    self.state = self.state:update(dt, world, self)
   end
   self.shape:moveTo(self.pos.x, self.pos.y)
   if self.animationSet then
@@ -93,6 +115,11 @@ function Sprite:applyDamage(attacker, amount, mtvX, mtvY)
   self.pos:move(mtvX, mtvY)
 end
 
+function Sprite:tostring()
+  return string.format("%s (%s; %s; %s; %s)", self.name, self.pos:tostring(),
+    self.dim:tostring(), self.animationSet:tostring(), self.state:tostring())
+end
+
 local Bee = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
 end}
@@ -103,12 +130,12 @@ function Bee:applyDamage(attacker, amount, mtvX, mtvY)
   Sprite.applyDamage(self, attacker, amount, mtvX, mtvY)
 end
 
-function Bee.Idle(dt, world, sprite)
+Bee.Idle = State('Bee.Idle', function(self, dt, world, sprite)
   if sprite:animationFinished() or not sprite.animationSet.currentAnimation then
     sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   end
   return Bee.Idle
-end
+end)
 
 local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
@@ -129,20 +156,20 @@ function Attack:onCollide(dt, otherSprite, mtvX, mtvY)
   otherSprite:applyDamage(self, 10, mtvX, mtvY)
 end
 
-function Sprite.Idle(dt, world, sprite)
+Sprite.Idle = State('Sprite.Idle', function(self, dt, world, sprite)
   return Sprite.Idle
-end
+end)
 
-function Sprite.Hurt(dt, world, sprite)
+Sprite.Hurt = State('Sprite.Hurt', function(self, dt, world, sprite)
   if sprite:animationFinished() then
     sprite:setAnimation('idle')
     return Sprite.Idle
   else
     return Sprite.Hurt
   end
-end
+end)
 
-function Player.Uppercutting(dt, world, sprite)
+Player.Uppercutting = State('Player.Uppercutting', function(self, dt, world, sprite)
   local nextState
   if sprite:animationFinished() and sprite.attack then
     world:unregister(sprite.attack)
@@ -153,9 +180,9 @@ function Player.Uppercutting(dt, world, sprite)
     nextState = Player.Uppercutting
   end
   return nextState
-end
+end)
 
-function Player.Idle(dt, world, sprite)
+Player.Idle = State('Player.Idle', function(self, dt, world, sprite)
   sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   local keysPressed = world:keysPressed()
   local nextState = Player.Idle
@@ -194,9 +221,9 @@ function Player.Idle(dt, world, sprite)
   end
 
   return nextState
-end
+end)
 
-function Player.Walking(dt, world, sprite)
+Player.Walking = State('Player.Walking', function(self, dt, world, sprite)
   prevSpriteDir = sprite.pos:spriteDir()
   local keysPressed = world:keysPressed()
   local moved = false
@@ -231,7 +258,7 @@ function Player.Walking(dt, world, sprite)
     sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   end
   return nextState
-end
+end)
 
 local exports = {
   Position   = Position,
@@ -242,15 +269,16 @@ local exports = {
 }
 
 function fromTmx(obj)
-  log("Loading %s (w: %d, h: %d)", obj.type, obj.width, obj.height)
   local cls = exports[obj.type]
-  return cls(
+  local s = cls(
     obj.name,
     Position(obj.x, obj.y, obj.properties.dirX, obj.properties.dirY),
     Dimensions(obj.width, obj.height),
     graphics.animations[obj.properties.animationSet],
     cls[obj.properties.state]
   )
+  log("Loaded %s", s:tostring())
+  return s
 end
 
 exports.fromTmx = fromTmx

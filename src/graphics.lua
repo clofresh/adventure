@@ -8,6 +8,18 @@ local AnimationSet = Class{function(self, image, animations)
   self.currentAnimation = nil
 end}
 
+function AnimationSet:tostring()
+  local status, frame
+  if self.currentAnimation then
+    status = self.currentAnimation.status
+    frame = self.currentAnimation.frame
+  else
+    status = 'nil'
+    frame = 'nil'
+  end
+  return string.format("status: %s, frame: %s", status, frame)
+end
+
 function AnimationSet:setAnimation(name, retainFramePos)
   if self.animations[name] then
     local startPos
