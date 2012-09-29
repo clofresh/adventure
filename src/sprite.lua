@@ -1,27 +1,40 @@
 local Class = require 'lib/hump/class'
+local vector = require 'lib/hump/vector-light'
 
-local Position = Class{function(self, x, y, dir)
+local Position = Class{function(self, x, y, dirX, dirY)
   self.x = x
   self.y = y
-  self.dir = dir
+  self.dirX = dirX
+  self.dirY = dirY
 end}
 
-function Position:moveX(x)
-  self.x = self.x + x
-  return self
-end
-function Position:moveY(y)
-  self.y = self.y + y
-  return self
-end
 function Position:move(x, y)
-  self:moveX(x)
-  self:moveY(y)
+  self.x = self.x + x
+  self.y = self.y + y
+  self.dirX, self.dirY = vector.normalize(x, y)
   return self
+end
+
+function Position:spriteDir()
+  local dir
+  if math.abs(self.dirX) > math.abs(self.dirY) then
+    if self.dirX < 0 then
+      dir = "W"
+    else
+      dir = "E"
+    end
+  else
+    if self.dirY < 0 then
+      dir = "N"
+    else
+      dir = "S"
+    end
+  end
+  return dir
 end
 
 function Position:clone()
-  return Position(self.x, self.y, self.dir)
+  return Position(self.x, self.y, self.dirX, self.dirY)
 end
 
 local Dimensions = Class{function(self, w, h)
@@ -47,9 +60,9 @@ function Sprite:animationFinished()
   return self.animationSet and self.animationSet:isFinished()
 end
 
-function Sprite:setAnimation(name)
+function Sprite:setAnimation(name, retainFramePos)
   if self.animationSet then
-    self.animationSet:setAnimation(name)
+    self.animationSet:setAnimation(name, retainFramePos)
   end
 end
 
@@ -57,14 +70,14 @@ function Sprite:update(dt, world)
   if self.state then
     self.state = self.state(dt, world, self)
   end
-  self.shape:moveTo(self.pos.x + (self.dim.w / 2), self.pos.y + (self.dim.h / 2))
+  self.shape:moveTo(self.pos.x + 32, self.pos.y + 40)
   if self.animationSet then
     self.animationSet:update(dt, self)
   end
 end
 
 function Sprite:draw()
-  if debug then
+  if debugMode then
     self.shape:draw('fill')
   end
   if self.animationSet then
@@ -144,26 +157,28 @@ function Player.Idle(dt, world, sprite)
     world:register(sprite.attack)
   else
     local moved = false
+    local dx, dy
+    dx, dy = 0, 0
     if keysPressed["w"] then
-      sprite.pos:moveY(-2)
+      dy = -2
       moved = true
-    end
-    if keysPressed["s"] then
-      sprite.pos:moveY(2)
+    elseif keysPressed["s"] then
+      dy = 2
       moved = true
     end
     if keysPressed["a"] then
-      sprite.pos:moveX(-2)
+      dx = -2
       moved = true
-    end
-    if keysPressed["d"] then
-      sprite.pos:moveX(2)
+    elseif keysPressed["d"] then
+      dx = 2
       moved = true
     end
 
+
     if moved then
+      sprite.pos:move(dx, dy)
       nextState = Player.Walking
-      sprite:setAnimation('walking')
+      sprite:setAnimation('walking'..sprite.pos:spriteDir(), false)
     end
   end
 
@@ -171,31 +186,38 @@ function Player.Idle(dt, world, sprite)
 end
 
 function Player.Walking(dt, world, sprite)
+  prevSpriteDir = sprite.pos:spriteDir()
   local keysPressed = world:keysPressed()
   local moved = false
   local nextState
+  local dx, dy
+  dx, dy = 0, 0
   if keysPressed["w"] then
-    sprite.pos:moveY(-2)
+    dy = -2
     moved = true
-  end
-  if keysPressed["s"] then
-    sprite.pos:moveY(2)
+  elseif keysPressed["s"] then
+    dy = 2
     moved = true
   end
   if keysPressed["a"] then
-    sprite.pos:moveX(-2)
+    dx = -2
     moved = true
-  end
-  if keysPressed["d"] then
-    sprite.pos:moveX(2)
+  elseif keysPressed["d"] then
+    dx = 2
     moved = true
   end
 
+
   if moved then
+    sprite.pos:move(dx, dy)
     nextState = Player.Walking
+    local newSpriteDir = sprite.pos:spriteDir()
+    if prevSpriteDir ~= newSpriteDir then
+      sprite:setAnimation('walking'..newSpriteDir, true)
+    end
   else
     nextState = Player.Idle
-    sprite:setAnimation('idle')
+    sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   end
   return nextState
 end

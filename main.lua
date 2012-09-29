@@ -1,4 +1,4 @@
-debugMode = true 
+debugMode = false
 
 local ATL = require("lib/Advanced-Tiled-Loader").Loader
 local Class = require 'lib/hump/class'
@@ -17,12 +17,12 @@ local world
 function love.load()
   graphics.load()
   world = World(ATL.load('world.tmx'))
-  player = Player("Player", Position(100, 100, 1), Dimensions(64, 64), graphics.animations.alex, Player.Idle)
-  player:setAnimation('idle')
-  npc = NPC("NPC", Position(100, 200, 1), Dimensions(16, 32), graphics.animations.ryan, Sprite.Idle)
-  npc:setAnimation('idle')
+  player = Player("Player", Position(100, 100, 0, 1), Dimensions(32, 48), graphics.animations.alex, Player.Idle)
+  player:setAnimation('idleS')
+  --npc = NPC("NPC", Position(100, 200, 1), Dimensions(16, 32), graphics.animations.ryan, Sprite.Idle)
+  --npc:setAnimation('idle')
   world:register(player)
-  world:register(npc)
+  --world:register(npc)
   world:focusOn(player)
 end
 
