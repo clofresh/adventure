@@ -310,12 +310,24 @@ function Player.Walking:transitionIn(prevState, dt, world, sprite, dx, dy)
   return Player.Walking
 end
 
+local Nadira = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
+  Sprite.construct(self, name, pos, dim, animationSet, state)
+end}
+
+Nadira.Idle = State('Nadira.Idle', function(self, dt, world, sprite)
+  if not sprite.animationSet.currentAnimation then
+    sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
+  end
+  return self
+end)
+
 local exports = {
   Position   = Position,
   Dimensions = Dimensions,
   Sprite     = Sprite,
   Player     = Player,
   Bee        = Bee,
+  Nadira     = Nadira,
 }
 
 function fromTmx(obj)
@@ -324,7 +336,7 @@ function fromTmx(obj)
     obj.name,
     Position(obj.x, obj.y, obj.properties.dirX, obj.properties.dirY),
     Dimensions(obj.width, obj.height),
-    graphics.animations[obj.properties.animationSet],
+    graphics.animations[obj.name],
     cls[obj.properties.state]
   )
   log("Loaded %s", s:tostring())

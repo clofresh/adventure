@@ -84,6 +84,15 @@ function load()
     idleS = anim8.newAnimation('loop', g('1-3,3'), 0.3),
     idleE = anim8.newAnimation('loop', g('1-3,4'), 0.3),
     })
+
+  local nadira = love.graphics.newImage('maps/tilesets/royal_mage.png')
+  local g = anim8.newGrid(64, 64, nadira:getWidth(), nadira:getHeight())
+  animations.nadira = AnimationSet(nadira, {
+    idleN = anim8.newAnimation('once', g('1,1'), 0.1),
+    idleW = anim8.newAnimation('once', g('1,2'), 0.1),
+    idleS = anim8.newAnimation('once', g('1,3'), 0.1),
+    idleE = anim8.newAnimation('once', g('1,4'), 0.1),
+    })
 end
 
 return {
