@@ -42,7 +42,7 @@
   <properties>
    <property name="focus" value="player"/>
   </properties>
-  <object name="player" type="Player" x="288" y="576" width="64" height="64">
+  <object name="player" type="Player" x="288" y="608" width="64" height="64">
    <properties>
     <property name="dirX" value="0"/>
     <property name="dirY" value="-1"/>
@@ -100,7 +100,6 @@
   </object>
   <object name="bee" type="Bee" x="368" y="304" width="32" height="32">
    <properties>
-
     <property name="dirX" value="-1"/>
     <property name="dirY" value="0"/>
     <property name="state" value="Idle"/>
@@ -271,7 +270,7 @@
    <properties>
     <property name="dirX" value="1"/>
     <property name="dirY" value="0"/>
-    <property name="state" value="Casting"/>
+    <property name="state" value="Idle"/>
    </properties>
   </object>
  </objectgroup>
@@ -314,5 +313,8 @@
   <object x="288" y="224" width="32" height="32"/>
   <object x="256" y="384" width="32" height="32"/>
   <object x="320" y="416" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="triggers" width="20" height="20">
+  <object name="start" x="288" y="512" width="64" height="32"/>
  </objectgroup>
 </map>

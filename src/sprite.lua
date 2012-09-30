@@ -346,6 +346,7 @@ local exports = {
   Player     = Player,
   Bee        = Bee,
   Nadira     = Nadira,
+  State      = State,
 }
 
 function fromTmx(obj)
