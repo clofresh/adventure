@@ -315,11 +315,29 @@ local Nadira = Class{inherits=Sprite, function(self, name, pos, dim, animationSe
 end}
 
 Nadira.Idle = State('Nadira.Idle', function(self, dt, world, sprite)
-  if not sprite.animationSet.currentAnimation then
+  if not sprite.animationSet.currentAnimation or sprite:animationFinished() then
     sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   end
   return self
 end)
+
+Nadira.Casting = State('Nadira.Casting', function(self, dt, world, sprite)
+  local nextState
+  if sprite:animationFinished() then
+    nextState = Nadira.Idle
+  else
+    nextState = self
+  end
+  return nextState:transitionIn(self, dt, world, sprite)
+end)
+
+function Nadira.Casting:transitionIn(prevState, dt, world, sprite)
+  State.transitionIn(self, prevState, dt, world, sprite)
+  if prevState ~= self then
+    sprite:setAnimation('casting'..sprite.pos:spriteDir(), true)
+  end
+  return self
+end
 
 local exports = {
   Position   = Position,

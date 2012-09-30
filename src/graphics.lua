@@ -92,6 +92,14 @@ function load()
     idleW = anim8.newAnimation('once', g('1,2'), 0.1),
     idleS = anim8.newAnimation('once', g('1,3'), 0.1),
     idleE = anim8.newAnimation('once', g('1,4'), 0.1),
+    walkingN = anim8.newAnimation('loop', g('2-9,1'), 0.1),
+    walkingW = anim8.newAnimation('loop', g('2-9,2'), 0.1),
+    walkingS = anim8.newAnimation('loop', g('2-9,3'), 0.1),
+    walkingE = anim8.newAnimation('loop', g('2-9,4'), 0.1),
+    castingN = anim8.newAnimation('once', g('1-7,5'), 0.1),
+    castingW = anim8.newAnimation('once', g('1-7,6'), 0.1),
+    castingS = anim8.newAnimation('once', g('1-7,7'), 0.1),
+    castingE = anim8.newAnimation('once', g('1-7,8'), 0.8, {0.8, 0.8, 0.8, 0.8, 0.8, 1.6, 0.8}),
     })
 end
 

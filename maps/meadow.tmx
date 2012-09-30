@@ -271,7 +271,7 @@
    <properties>
     <property name="dirX" value="1"/>
     <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
+    <property name="state" value="Casting"/>
    </properties>
   </object>
  </objectgroup>
