@@ -59,7 +59,7 @@ local World = Class{function(self, map, sprites)
   end
 
   local shape
-  for i, obj in pairs( map("trees").objects ) do
+  for i, obj in pairs( map("scenery").objects ) do
     obj.shape = self.collider:addRectangle(obj.x, obj.y,
       obj.width, obj.height)
     self.sprites[obj.shape] = obj

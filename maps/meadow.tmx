@@ -9,9 +9,23 @@
  <tileset firstgid="37" name="treetop" tilewidth="32" tileheight="32">
   <image source="tilesets/treetop.png" width="192" height="224"/>
  </tileset>
+ <tileset firstgid="79" name="dirt" tilewidth="32" tileheight="32">
+  <image source="tilesets/dirt.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="97" name="dirt2" tilewidth="32" tileheight="32">
+  <image source="tilesets/dirt2.png" width="96" height="192"/>
+ </tileset>
+ <tileset firstgid="115" name="rock" tilewidth="32" tileheight="32">
+  <image source="tilesets/rock.png" width="64" height="32"/>
+ </tileset>
  <layer name="ground" width="20" height="20">
   <data encoding="base64" compression="zlib">
    eJyNlEsOxSAIRVmCuP/Fti9xQE7P7evAaKgC90N3VfW99lm/8zprn70R57cZZ64esfl2j9is2zgv5Ojyvhp5WWOFM3vjvVm3y7mYGLjz+8SfeDGOWJd4yRlzJM6Nd/bG3s0jSW/DOu+8afTGt3ki6UtM5Mv66HriM72pNfFSI/Jks8OY1acfySnzGT/mFeOUvrF/g3nkaz7zObVKmDgTxGI6kifmTtpbPpuhNLOG0TT9dz951XzEN+m/88UHNlcXVy0alw==
+  </data>
+ </layer>
+ <layer name="road" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFQxUUU9GsEiBOB+IMApiQGSVQd4HMSgPibAIYZGYmmjnY3EGMWTCcSoHegcJJQJyHhpMp0J8PDctipHjJJcJMdP24ACzt5WJxNzIeBcMbAAAPlzdB
   </data>
  </layer>
  <layer name="mid" width="20" height="20">
@@ -295,7 +309,7 @@
    eJzTYGBg0ARiLQbigAYB9XpArA/EBkSaR0i9CRCbArEZkeaRqh4ECPmJVDNIDQNsANkMcvyEDqhhxigYGYAa+QEZIKdlUszGpRY5LZNiNja16HpwmY3NPdjU4nMPeh7EV07A1OJzDy49tCwr0QEA0cgTRQ==
   </data>
  </layer>
- <objectgroup name="trees" width="20" height="20">
+ <objectgroup name="scenery" width="20" height="20">
   <properties>
    <property name="obstruction" value="true"/>
   </properties>
@@ -320,5 +334,9 @@
   <object x="32" y="608" width="32" height="32"/>
   <object x="64" y="512" width="32" height="32"/>
   <object x="96" y="480" width="32" height="32"/>
+  <object x="352" y="160" width="32" height="32"/>
+  <object x="288" y="224" width="32" height="32"/>
+  <object x="256" y="384" width="32" height="32"/>
+  <object x="320" y="416" width="32" height="32"/>
  </objectgroup>
 </map>
