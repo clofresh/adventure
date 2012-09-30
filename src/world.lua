@@ -23,6 +23,21 @@ local World = Class{function(self, map, sprites)
   spriteLayer.update = function(layer, dt)
     for shape, sprite in pairs(self.sprites) do
       sprite:update(dt, self)
+      if sprite.pos then
+        local maxX = (self.map.width * self.map.tileWidth) - (sprite.dim.w / 2)
+        local maxY = (self.map.height * self.map.tileHeight) - (sprite.dim.h / 2)
+
+        if sprite.pos.x < 0 then
+          sprite.pos.x = 0
+        elseif sprite.pos.x > maxX then
+          sprite.pos.x = maxX
+        end
+        if sprite.pos.y < 0 then
+          sprite.pos.y = 0
+        elseif sprite.pos.y > maxY then
+          sprite.pos.y = maxY
+        end
+      end
     end
   end
   spriteLayer.draw = function(layer)
