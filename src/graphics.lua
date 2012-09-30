@@ -79,10 +79,10 @@ function load()
   local bee = love.graphics.newImage('maps/tilesets/bee.png')
   local g = anim8.newGrid(32, 32, bee:getWidth(), bee:getHeight())
   animations.bee = AnimationSet(bee, {
-    idleN = anim8.newAnimation('once', g('1-3,1'), 0.1),
-    idleW = anim8.newAnimation('once', g('1-3,2'), 0.1),
-    idleS = anim8.newAnimation('once', g('1-3,3'), 0.1),
-    idleE = anim8.newAnimation('once', g('1-3,4'), 0.1),
+    idleN = anim8.newAnimation('loop', g('1-3,1'), 0.3),
+    idleW = anim8.newAnimation('loop', g('1-3,2'), 0.3),
+    idleS = anim8.newAnimation('loop', g('1-3,3'), 0.3),
+    idleE = anim8.newAnimation('loop', g('1-3,4'), 0.3),
     })
 end
 

@@ -26,7 +26,19 @@ local World = Class{function(self, map, sprites)
     end
   end
   spriteLayer.draw = function(layer)
+    local drawOrder = {}
+    local i = 1
     for shape, sprite in pairs(self.sprites) do
+      drawOrder[i] = sprite
+      i = i + 1
+    end
+    table.sort(drawOrder, function(a, b)
+      return a.pos and b.pos and a.pos.y < b.pos.y
+    end)
+    for i, sprite in ipairs(drawOrder) do
+      --if sprite.tostring then
+      --  log("Drawing %s", sprite:tostring())
+      --end
       sprite:draw()
     end
   end
@@ -50,6 +62,7 @@ local World = Class{function(self, map, sprites)
 
   self.map = map
   self.cam = Camera.new(980, 1260, 1, 0)
+  self.turn = 1
   self._keysPressed = {}
 end}
 
@@ -74,9 +87,11 @@ function World:update(dt)
 end
 
 function World:draw()
+  --log("Drawing turn %d", self.turn)
   self.cam:draw(function()
     self.map:draw()
   end)
+  self.turn = self.turn + 1
 end
 
 function World:focusOn(sprite)

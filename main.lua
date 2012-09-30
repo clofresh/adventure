@@ -1,4 +1,5 @@
 debugMode = false
+math.randomseed(1)
 
 local ATL = require("lib/Advanced-Tiled-Loader").Loader
 local Class = require 'lib/hump/class'

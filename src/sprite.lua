@@ -145,11 +145,39 @@ function Bee:applyDamage(attacker, amount, mtvX, mtvY)
 end
 
 Bee.Idle = State('Bee.Idle', function(self, dt, world, sprite)
-  if sprite:animationFinished() or not sprite.animationSet.currentAnimation then
+  if not sprite.animationSet.currentAnimation then
     sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
   end
-  return Bee.Idle
+  local nextState
+  if math.random(1, 50) == 2 then
+    nextState = Bee.Move
+  else
+    nextState = Bee.Idle
+  end
+  return nextState:transitionIn(self, dt, world, sprite)
 end)
+
+Bee.Move = State('Bee.Move', function(self, dt, world, sprite)
+  local nextState
+  if math.random(1, 1000) == 1 then
+    nextState = Bee.Idle
+  else
+    nextState = self
+  end
+  return nextState:transitionIn(self, dt, world, sprite)
+end)
+
+function Bee.Move:transitionIn(prevState, dt, world, sprite)
+  State.transitionIn(self, prevState, dt, world, sprite)
+
+  sprite.pos:move(math.random(-3, 3), math.random(-3, 3))
+  if prevState ~= self then
+    sprite:setAnimation('idleS', true)
+  end
+
+  return self
+end
+
 
 local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
   Sprite.construct(self, name, pos, dim, animationSet, state)
