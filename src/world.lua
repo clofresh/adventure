@@ -1,49 +1,51 @@
 local Camera = require 'lib/hump/camera'
-local Class = require 'lib/hump/class'
 local HC = require 'lib/HardonCollider'
 
-local World = Class{function(self, map, sprites, triggers)
-  local spriteLayer = map("sprites")
+local pathing = require 'src/pathing'
+local sprite = require 'src/sprite'
 
+local World = Class{function(self, map)
+  self.cam = Camera.new(980, 1260, 1, 0)
   self.collider = HC(100, function(dt, shapeA, shapeB, mtvX, mtvY)
-    self:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
+    --self:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
   end)
 
   self.keyInputEnabled = true
-  self.sprites = {}
-  self.triggers = triggers
   self.focus = nil
-  for i, sprite in pairs(sprites) do
-    self:register(sprite)
-    if sprite.name == spriteLayer.properties.focus then
-      self.focus = sprite
+  self.map = map
+  self.turn = 1
+  self._keysPressed = {}
+
+  -- Build up an index of obstructions by position
+  local obstructions = {}
+  for name, layer in pairs(map.layers) do
+    if layer.properties and layer.properties.obstruction then
+      for x, y, tile in layer:iterate() do
+        if not obstructions[x] then
+          obstructions[x] = {y=tile}
+        else
+          obstructions[x][y] = tile
+        end
+      end
+    end
+  end
+  self.obstructions = obstructions
+
+  -- Instantiate the sprites
+  local spriteLayer = map("sprites")
+  self.sprites = {}
+  for i, obj in pairs(spriteLayer.objects) do
+    local spr = sprite.fromTmx(obj)
+    self:register(spr)
+    if spr.name == spriteLayer.properties.focus then
+      self:focusOn(spr)
     end
   end
 
-  -- prepare the map object
-  map.drawObjects = false
-
   -- sprite update callback
   spriteLayer.update = function(layer, dt)
-    for shape, sprite in pairs(self.sprites) do
-      sprite:update(dt, self)
-
-      -- make sure the sprite stays within the bounds of the map
-      if sprite.pos then
-        local maxX = (self.map.width * self.map.tileWidth) - (sprite.dim.w / 2)
-        local maxY = (self.map.height * self.map.tileHeight) - (sprite.dim.h / 2)
-
-        if sprite.pos.x < 0 then
-          sprite.pos.x = 0
-        elseif sprite.pos.x > maxX then
-          sprite.pos.x = maxX
-        end
-        if sprite.pos.y < 0 then
-          sprite.pos.y = 0
-        elseif sprite.pos.y > maxY then
-          sprite.pos.y = maxY
-        end
-      end
+    for name, spr in pairs(self.sprites) do
+      spr:update(dt, self)
     end
   end
 
@@ -51,71 +53,31 @@ local World = Class{function(self, map, sprites, triggers)
   spriteLayer.draw = function(layer)
     local drawOrder = {}
     local i = 1
-    for shape, sprite in pairs(self.sprites) do
-      drawOrder[i] = sprite
+    for name, spr in pairs(self.sprites) do
+      drawOrder[i] = spr
       i = i + 1
     end
     table.sort(drawOrder, function(a, b)
       return a.pos and b.pos and a.pos.y < b.pos.y
     end)
-    for i, sprite in ipairs(drawOrder) do
-      --if sprite.tostring then
-      --  log("Drawing %s", sprite:tostring())
+    for i, spr in ipairs(drawOrder) do
+      --if spr.tostring then
+      --  log("Drawing %s", spr:tostring())
       --end
-      sprite:draw()
+      spr:draw()
     end
   end
 
-  -- setup the scenery objects
-  local shape
-  for i, obj in pairs( map("scenery").objects ) do
-    obj.shape = self.collider:addRectangle(obj.x, obj.y,
-      obj.width, obj.height)
-    self.sprites[obj.shape] = obj
-    obj.properties.obstruction = true
-    obj.update = function(dt, world)
-    end
-    obj.onCollide = function(dt, otherSprite, mtvX, mtvY)
-    end
-    obj.draw = function()
-      if debugMode then
-        obj.shape:draw('fill')
-      end
-    end
-  end
-
-  -- setup the event triggers
-  local shape
-  for i, obj in pairs( map("triggers").objects ) do
-    obj.shape = self.collider:addRectangle(obj.x, obj.y,
-      obj.width, obj.height)
-    self.sprites[obj.shape] = obj
-    obj.update = function(dt, world)
-    end
-    obj.onCollide = self.triggers[obj.name]
-    obj.draw = function()
-      if debugMode then
-        obj.shape:draw('fill')
-      end
-    end
-  end
-
-
-  self.map = map
-  self.cam = Camera.new(980, 1260, 1, 0)
-  self.turn = 1
-  self._keysPressed = {}
 end}
 
-function World:register(sprite)
-  shape = sprite:initShape(self.collider)
-  self.sprites[shape] = sprite
+function World:register(spr)
+  local shape = spr:initShape(self.collider)
+  self.sprites[spr.name] = spr
 end
 
-function World:unregister(sprite)
-  shape = sprite.shape
-  self.collider:remove(shape)
-  self.sprites[shape] = nil
+function World:unregister(spr)
+  self.collider:remove(spr.shape)
+  self.sprites[spr.name] = nil
 end
 
 function World:update(dt)
@@ -132,11 +94,13 @@ function World:draw()
   self.cam:draw(function()
     self.map:draw()
   end)
+  love.graphics.print(string.format("(%f, %f)", self.cam.x, self.cam.y), 1, 1)
+
   self.turn = self.turn + 1
 end
 
-function World:focusOn(sprite)
-  self.focus = sprite
+function World:focusOn(spr)
+  self.focus = spr
 end
 
 function World:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
@@ -161,13 +125,17 @@ function World:keysPressed()
   return self._keysPressed
 end
 
-function World:findSprite(name)
-  for shape, sprite in pairs(self.sprites) do
-    if sprite.name == name then
-      return sprite
-    end
-  end
-  return nil
+function World:isObstructed(gridPos)
+  local x = gridPos.x
+  local y = gridPos.y
+  return x < 1 or x > self.map.width
+      or y < 1 or y > self.map.height
+      or (self.obstructions[x] and self.obstructions[x][y])
+end
+
+function World:findPath(startGridPos, endGridPos)
+  local query = pathing.PathSearch(startGridPos, endGridPos, self)
+  return pathing.search(query)
 end
 
 return {

@@ -1,56 +1,3 @@
-local Class = require 'lib/hump/class'
-local vector = require 'lib/hump/vector-light'
-local graphics = require('src/graphics')
-
-local Position = Class{function(self, x, y, dirX, dirY)
-  self.x = x
-  self.y = y
-  self.dirX = dirX
-  self.dirY = dirY
-end}
-
-function Position:move(x, y)
-  self.x = self.x + x
-  self.y = self.y + y
-  self.dirX, self.dirY = vector.normalize(x, y)
-  return self
-end
-
-function Position:spriteDir()
-  local dir
-  if math.abs(self.dirX) > math.abs(self.dirY) then
-    if self.dirX < 0 then
-      dir = "W"
-    else
-      dir = "E"
-    end
-  else
-    if self.dirY < 0 then
-      dir = "N"
-    else
-      dir = "S"
-    end
-  end
-  return dir
-end
-
-function Position:clone()
-  return Position(self.x, self.y, self.dirX, self.dirY)
-end
-
-function Position:tostring()
-  return string.format("x: %d, y: %d, dx: %d, dy: %d", self.x, self.y,
-                        self.dirX, self.dirY)
-end
-
-local Dimensions = Class{function(self, w, h)
-  self.w = w
-  self.h = h
-end}
-
-function Dimensions:tostring()
-  return string.format("w: %d, h: %d", self.w, self.h)
-end
 
 local State = Class{function(self, name, updateCallback)
   self.name = name
@@ -70,7 +17,7 @@ function State:transitionIn(prevState, dt, world, sprite)
       p = 'nil'
     end
 
-    log("%s: %s -> %s", sprite.name, p, self:tostring())
+    util.log("%s: %s -> %s", sprite.name, p, self:tostring())
   end
   return self
 end
@@ -79,12 +26,14 @@ function State:tostring()
   return string.format("state: %s", self.name)
 end
 
-local Sprite = Class{function(self, name, pos, dim, animationSet, state)
+local Sprite = Class{function(self, name, pos, dim, animationSet)
   self.name = name
   self.pos = pos
   self.dim = dim
   self.animationSet = animationSet
-  self.state = state:transitionIn(nil, 0, nil, self)
+  self:setAnimation('idle')
+  self.toDo = {} -- treat as a deque
+  self.cooldown = 0
 end}
 
 function Sprite:initShape(collider)
@@ -93,24 +42,54 @@ function Sprite:initShape(collider)
   return self.shape
 end
 
-function Sprite:animationFinished()
-  return self.animationSet and self.animationSet:isFinished()
+function Sprite:setAnimation(animationType)
+  local animationName = animationType..self.pos:spriteDir()
+  local animation = self.animationSet:getAnimation(animationName)
+  if self.animationSet.currentAnimation ~= animation then
+    self.animationSet:setAnimation(animation)
+  end
 end
 
-function Sprite:setAnimation(name, retainFramePos)
-  if self.animationSet then
-    self.animationSet:setAnimation(name, retainFramePos)
-  end
+function Sprite:animationFinished()
+  return self.animation and self.animation:isFinished()
 end
 
 function Sprite:update(dt, world)
-  if self.state then
-    self.state = self.state:update(dt, world, self)
-  end
+  self:planActions(dt, world)
+  self:act(dt, world)
   self.shape:moveTo(self.pos.x, self.pos.y)
   if self.animationSet then
     self.animationSet:update(dt, self)
   end
+end
+
+function Sprite:planActions(dt, world)
+end
+
+function Sprite:act(dt, world)
+  self.cooldown = self.cooldown - dt
+  if self.cooldown < 0 then
+    self.cooldown = 0
+  end
+  if self.cooldown == 0 then
+    local action = self.toDo[1]
+    if action then
+      action:execute(dt, world)
+      if action.elapsed > action.duration then
+        table.remove(self.toDo, 1)
+      end
+    else
+      self:idle(dt, world)
+    end
+  end
+  local leftToDo = #self.toDo
+  if leftToDo > 0 then
+    util.log("%s has %d left to do", self.name, leftToDo)
+  end
+end
+
+function Sprite:idle(dt, world)
+  self:setAnimation('idle')
 end
 
 function Sprite:draw()
@@ -130,57 +109,14 @@ function Sprite:applyDamage(attacker, amount, mtvX, mtvY)
 end
 
 function Sprite:tostring()
-  return string.format("%s (%s; %s; %s; %s)", self.name, self.pos:tostring(),
-    self.dim:tostring(), self.animationSet:tostring(), self.state:tostring())
-end
-
-local Bee = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
-  Sprite.construct(self, name, pos, dim, animationSet, state)
-end}
-
-function Bee:applyDamage(attacker, amount, mtvX, mtvY)
-  self.state = Sprite.Hurt
-  self:setAnimation('hurt')
-  Sprite.applyDamage(self, attacker, amount, mtvX, mtvY)
-end
-
-Bee.Idle = State('Bee.Idle', function(self, dt, world, sprite)
-  if not sprite.animationSet.currentAnimation then
-    sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
-  end
-  local nextState
-  if math.random(1, 50) == 2 then
-    nextState = Bee.Move
-  else
-    nextState = Bee.Idle
-  end
-  return nextState:transitionIn(self, dt, world, sprite)
-end)
-
-Bee.Move = State('Bee.Move', function(self, dt, world, sprite)
-  local nextState
-  if math.random(1, 1000) == 1 then
-    nextState = Bee.Idle
-  else
-    nextState = self
-  end
-  return nextState:transitionIn(self, dt, world, sprite)
-end)
-
-function Bee.Move:transitionIn(prevState, dt, world, sprite)
-  State.transitionIn(self, prevState, dt, world, sprite)
-
-  sprite.pos:move(math.random(-3, 3), math.random(-3, 3))
-  if prevState ~= self then
-    sprite:setAnimation('idleS', true)
-  end
-
-  return self
+  return string.format("%s (%s; %s)", self.name, self.pos:tostring(),
+    self.dim:tostring())
 end
 
 
-local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
-  Sprite.construct(self, name, pos, dim, animationSet, state)
+local Player = Class{inherits=Sprite, function(self, name, pos, dim, animationSet)
+  Sprite.construct(self, name, pos, dim, animationSet)
+  self.velocity = 120
 end}
 
 function Player:onCollide(dt, otherSprite, mtvX, mtvY)
@@ -189,159 +125,92 @@ function Player:onCollide(dt, otherSprite, mtvX, mtvY)
   end
 end
 
-local Attack = Class{inherits=Sprite, function(self, name, pos, dim, type)
-  Sprite.construct(self, name, pos, dim)
-  self.type = type
+local Action = Class{function(self, duration, toExecute)
+  self.duration = duration
+  self.elapsed = 0
+  self.toExecute = toExecute
 end}
 
-function Attack:onCollide(dt, otherSprite, mtvX, mtvY)
-  otherSprite:applyDamage(self, 10, mtvX, mtvY)
+function Action:execute(dt, world)
+  self.elapsed = self.elapsed + dt
+  self:toExecute(dt, world)
 end
 
-Sprite.Idle = State('Sprite.Idle', function(self, dt, world, sprite)
-  return Sprite.Idle
-end)
-
-Sprite.Hurt = State('Sprite.Hurt', function(self, dt, world, sprite)
-  if sprite:animationFinished() then
-    sprite:setAnimation('idle')
-    return Sprite.Idle
-  else
-    return Sprite.Hurt
-  end
-end)
-
-Player.Uppercutting = State('Player.Uppercutting', function(self, dt, world, sprite)
-  local nextState
-  if sprite:animationFinished() and sprite.attack then
-    world:unregister(sprite.attack)
-    sprite.attack = nil
-    nextState = Player.Idle
-    sprite:setAnimation('idle')
-  else
-    nextState = Player.Uppercutting
-  end
-  return nextState
-end)
-
-Player.Idle = State('Player.Idle', function(self, dt, world, sprite)
+function Player:planActions(dt, world)
   local keysPressed = world:keysPressed()
-  local nextState = Player.Idle
-  local dx, dy
-  if keysPressed['u'] then
-    nextState = Player.Uppercutting
-    sprite:setAnimation('uppercutting')
-    local attackPos = sprite.pos:clone():move(24, 12)
-    local attackDim = Dimensions(4, 4)
-    sprite.attack = Attack('uppercut', attackPos, attackDim, 'mid')
-    world:register(sprite.attack)
-  else
-    local moved = false
-    dx, dy = 0, 0
-    if keysPressed["w"] then
-      dy = -2
-      moved = true
-    elseif keysPressed["s"] then
-      dy = 2
-      moved = true
-    end
-    if keysPressed["a"] then
-      dx = -2
-      moved = true
-    elseif keysPressed["d"] then
-      dx = 2
-      moved = true
-    end
+  local direction = ""
 
-
-    if moved then
-      nextState = Player.Walking
-    end
+  -- Don't let the actions queue get too long
+  if #self.toDo > 20 then
+    return
   end
 
-  return nextState:transitionIn(Player.Idle, dt, world, sprite, dx, dy)
-end)
+  -- if keysPressed["1"] then
+  --   local duration = 0
+  --   local directions = {{"E", 50, 90}, {"N", 10, 120}}
+  --   for i, direction in pairs(directions) do
+  --     local action = self:move(direction[1], direction[2], direction[3])
+  --     table.insert(self.toDo, action)
+  --   end
+  --   world:releasedKey("1")
+  -- end
 
-function Player.Idle:transitionIn(prevState, dt, world, sprite)
-  State.transitionIn(self, prevState, dt, world, sprite)
-  sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
-  return Player.Idle
-end
-
-Player.Walking = State('Player.Walking', function(self, dt, world, sprite)
-  prevSpriteDir = sprite.pos:spriteDir()
-  local keysPressed = world:keysPressed()
-  local moved = false
-  local nextState
-  local dx, dy
-  dx, dy = 0, 0
   if keysPressed["w"] then
-    dy = -2
-    moved = true
+    direction = direction .. "N"
   elseif keysPressed["s"] then
-    dy = 2
-    moved = true
+    direction = direction .. "S"
   end
   if keysPressed["a"] then
-    dx = -2
-    moved = true
+    direction = direction .. "W"
   elseif keysPressed["d"] then
-    dx = 2
-    moved = true
+    direction = direction .. "E"
   end
 
-
-  if moved then
-    nextState = Player.Walking
-  else
-    nextState = Player.Idle
+  if direction ~= "" then
+    local duration = 0.01
+    table.insert(self.toDo, self:move(direction, 1))
   end
-  return nextState:transitionIn(Player.Walking, dt, world, sprite, dx, dy)
-end)
-
-function Player.Walking:transitionIn(prevState, dt, world, sprite, dx, dy)
-  State.transitionIn(self, prevState, dt, world, sprite)
-  local prevSpriteDir = sprite.pos:spriteDir()
-  sprite.pos:move(dx, dy)
-  local newSpriteDir = sprite.pos:spriteDir()
-  if prevSpriteDir ~= newSpriteDir or prevState ~= self then
-    sprite:setAnimation('walking'..newSpriteDir, true)
-  end
-  return Player.Walking
 end
 
-local Nadira = Class{inherits=Sprite, function(self, name, pos, dim, animationSet, state)
-  Sprite.construct(self, name, pos, dim, animationSet, state)
-end}
-
-Nadira.Idle = State('Nadira.Idle', function(self, dt, world, sprite)
-  if not sprite.animationSet.currentAnimation or sprite:animationFinished() then
-    sprite:setAnimation('idle'..sprite.pos:spriteDir(), false)
+function Player:move(direction, distance, velocity)
+  if distance == nil then
+    distance = 1
   end
-  return self
-end)
-
-Nadira.Casting = State('Nadira.Casting', function(self, dt, world, sprite)
-  local nextState
-  if sprite:animationFinished() then
-    nextState = Nadira.Idle
-  else
-    nextState = self
+  if velocity == nil then
+    velocity = self.velocity
   end
-  return nextState:transitionIn(self, dt, world, sprite)
-end)
+  local action = Action(distance / velocity, function(self, dt)
+    local dx, dy
+    local step = velocity * dt
+    if     direction == "N"  then dx, dy = 0, -step
+    elseif direction == "NE" then dx = math.sqrt(step); dy = -dx
+    elseif direction == "E"  then dx, dy = step, 0
+    elseif direction == "SE" then dx = math.sqrt(step); dy = dx
+    elseif direction == "S"  then dx, dy = 0, step
+    elseif direction == "SW" then dx = -math.sqrt(step); dy = -dx
+    elseif direction == "W"  then dx, dy = -step, 0
+    elseif direction == "NW" then dx = -math.sqrt(step); dy = dx
+    end
+    if dx ~= nil and dy ~= nil then
+      self.sprite.pos:move(dx, dy)
+      self.sprite:setAnimation('walking')
+    end
+  end)
+  action.sprite = self
+  return action
+end
 
-function Nadira.Casting:transitionIn(prevState, dt, world, sprite)
-  State.transitionIn(self, prevState, dt, world, sprite)
-  if prevState ~= self then
-    sprite:setAnimation('casting'..sprite.pos:spriteDir(), true)
+
+function Player:followPath(directions)
+  local direction = directions:pop()
+  self:move(direction)
+
+  for i, direction in pairs(directions) do
+    self:move(direction)
   end
-  return self
 end
 
 local exports = {
-  Position   = Position,
-  Dimensions = Dimensions,
   Sprite     = Sprite,
   Player     = Player,
   Bee        = Bee,
@@ -353,12 +222,11 @@ function fromTmx(obj)
   local cls = exports[obj.type]
   local s = cls(
     obj.name,
-    Position(obj.x, obj.y, obj.properties.dirX, obj.properties.dirY),
-    Dimensions(obj.width, obj.height),
-    graphics.animations[obj.name],
-    cls[obj.properties.state]
+    util.Position(obj.x, obj.y, obj.properties.dirX, obj.properties.dirY),
+    util.Dimensions(obj.width, obj.height),
+    graphics.animations[obj.name]
   )
-  log("Loaded %s", s:tostring())
+  util.log("Loaded %s", s:tostring())
   return s
 end
 

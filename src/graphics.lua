@@ -28,21 +28,15 @@ function AnimationSet:tostring()
   return string.format("status: %s, frame: %s", status, frame)
 end
 
-function AnimationSet:setAnimation(name, retainFramePos)
-  if self.animations[name] then
-    local startPos
-    if self.currentAnimation and retainFramePos then
-      startPos = self.currentAnimation.position
-    else
-      startPos = 1
-    end
-
-    self.currentAnimation = self.animations[name]:clone()
-    if startPos < #self.currentAnimation.frames then
-      self.currentAnimation:gotoFrame(startPos)
-    end
-  end
+function AnimationSet:getAnimation(name)
+  return self.animations[name]
 end
+
+function AnimationSet:setAnimation(animation)
+  animation:gotoFrame(1)
+  self.currentAnimation = animation
+end
+
 function AnimationSet:update(dt, sprite)
   if self.currentAnimation then
     self.currentAnimation:update(dt)

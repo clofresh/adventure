@@ -1,41 +1,9 @@
-Class = require 'lib/hump/class'
 local PriorityQueue = require("lib/binary_heap")
 
-local Queue = Class{function(self, initial)
-    if initial == nil then
-        self.q = {}
-    else
-        self.q = initial
-    end
-end}
-
-function Queue:push(item)
-    table.insert(self.q, item)
-end
-
-function Queue:pop()
-    return table.remove(self.q, 1)
-end
-
-function Queue:__tostring()
-    local output = ''
-    for i, val in ipairs(self.q) do
-        output = output .. tostring(val)
-    end
-    return output
-end
-
-function Queue:copy()
-    local q = {}
-    for k, val in pairs(self.q) do
-        q[k] = val
-    end
-    return Queue(q)
-end
-
-local PathSearch = Class{function(self, startPos, goalPos)
+local PathSearch = Class{function(self, startPos, goalPos, world)
     self.startPos = startPos
     self.goalPos = goalPos
+    self.world = world
 end}
 
 function PathSearch:getStartState()
@@ -62,9 +30,9 @@ function PathSearch:getSuccessors(state)
         {state = {x=state.x, y=state.y - 1},
             action={dir='n', cost=unitCost}},
     }
+
     for i, successor in pairs(successors) do
-        if successor.state.x < 1 or successor.state.x > 1000
-            or successor.state.y < 1 or successor.state.y > 1000 then
+        if self.world:isObstructed(successor.state) then
             table.remove(successors, i)
         end
     end
@@ -86,7 +54,7 @@ end
 local Plan = Class{function(self, state, actions)
     self.state = state
     if actions == nil then
-        self.actions = Queue()
+        self.actions = util.Queue()
     else
         self.actions = actions
     end
@@ -124,7 +92,10 @@ function search(query)
     local startTime = os.clock()
 
     local fringe = PriorityQueue(function(plan1, plan2)
-        return Plan.compare(query, plan1, plan2)
+        if     plan1 == nil and plan2 == nil then return false
+        elseif plan1 == nil and plan2 ~= nil then return true
+        elseif plan1 ~= nil and plan2 == nil then return false
+        else return query:totalCost(plan1) < query:totalCost(plan2) end
     end)
     fringe:insert(Plan(query:getStartState()))
 

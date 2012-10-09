@@ -25,15 +25,21 @@
  </layer>
  <layer name="road" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFQxUUU9GsEiBOB+IMApiQGSVQd4HMSgPibAIYZGYmmjnY3EGMWTCcSoHegcJJQJyHhpMp0J8PDctipHjJJcJMdP24ACzt5WJxNzIeBcMbAAAPlzdB
+   eJxjYBgFo4CBoQSI04E4gwAmZEYJlA0yKw2IswlgkJmZaOZgcwcxZsFwKgV6BwonAXEeGk6mQH8+lnjJJcJMbPrxgVws7kbGo2B4AwBKNTV1
   </data>
  </layer>
  <layer name="mid" width="20" height="20">
+  <properties>
+   <property name="obstruction" value="true"/>
+  </properties>
   <data encoding="base64" compression="zlib">
-   eJxjYMAOhIFYBIhFCYgRCySBWAqIpQmI4QPI9ssDsQIQKyLJYxMj1U2kuAEdYLOfUJhhcwM+PYTcjM0N+PSQGmbk6hkFIxtQUnZgA+hpmljzcalDT9PElg3EqkM3n1h3EAvIKcvwAWLdAQAqmQkl
+   eJxjYMAOhIFYBIhFCYgRCySBWAqIpQmI4QPI9ssDsQIQKyLJYxMj1U2kuAEdYLOfUJhhcwM+Pcjqi4l0Az5/khpmxOjB5q5RMDCAVnFBqrmUlB3YAHqaJtZ8XOrQ0zSxZQOx6tDNJ9YdxAJyyjJ8gFh3AADv7Arx
   </data>
  </layer>
  <layer name="mid2" width="20" height="20">
+  <properties>
+   <property name="obstruction" value="true"/>
+  </properties>
   <data encoding="base64" compression="zlib">
    eJxjYBjcQBiIRYBYlErqJYFYCoiliTSPkHp5IFYAYkUizSNVPQiQGgaEzCA1DLABZDPI8RM6oIYZo2BkAGrkB2SAnJZJMRuXWuS0TIrZ2NQi60Fmo5uNzT3Y3IGsB10/eh7EV07A1AIAXxQJSQ==
   </data>
@@ -49,230 +55,6 @@
     <property name="state" value="Idle"/>
    </properties>
   </object>
-  <object name="bee" type="Bee" x="384" y="288" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="352" y="288" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="384" y="256" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="416" y="288" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="384" y="320" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="336" y="272" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="336" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="368" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="240" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="304" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="336" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="336" y="368" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="272" y="272" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="272" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="336" y="272" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="272" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="304" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="304" y="240" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="208" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="272" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="400" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="464" y="272" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="240" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="208" y="304" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="bee" type="Bee" x="304" y="336" width="32" height="32">
-   <properties>
-    <property name="dirX" value="-1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
-  <object name="nadira" type="Nadira" x="32" y="320" width="64" height="64">
-   <properties>
-    <property name="dirX" value="1"/>
-    <property name="dirY" value="0"/>
-    <property name="state" value="Idle"/>
-   </properties>
-  </object>
  </objectgroup>
  <layer name="high" width="20" height="20">
   <data encoding="base64" compression="zlib">
@@ -284,37 +66,7 @@
    eJzTYGBg0ARiLQbigAYB9XpArA/EBkSaR0i9CRCbArEZkeaRqh4ECPmJVDNIDQNsANkMcvyEDqhhxigYGYAa+QEZIKdlUszGpRY5LZNiNja16HpwmY3NPdjU4nMPeh7EV07A1OJzDy49tCwr0QEA0cgTRQ==
   </data>
  </layer>
- <objectgroup name="scenery" width="20" height="20">
-  <properties>
-   <property name="obstruction" value="true"/>
-  </properties>
-  <object x="32" y="96" width="32" height="32"/>
-  <object x="64" y="192" width="32" height="32"/>
-  <object x="96" y="224" width="32" height="32"/>
-  <object x="128" y="96" width="32" height="32"/>
-  <object x="192" y="192" width="32" height="32"/>
-  <object x="224" y="32" width="32" height="32"/>
-  <object x="288" y="160" width="32" height="32"/>
-  <object x="384" y="32" width="32" height="32"/>
-  <object x="416" y="96" width="32" height="32"/>
-  <object x="544" y="128" width="32" height="32"/>
-  <object x="512" y="544" width="32" height="32"/>
-  <object x="544" y="512" width="32" height="32"/>
-  <object x="608" y="576" width="32" height="32"/>
-  <object x="384" y="608" width="32" height="32"/>
-  <object x="352" y="576" width="32" height="32"/>
-  <object x="256" y="576" width="32" height="32"/>
-  <object x="224" y="512" width="32" height="32"/>
-  <object x="160" y="544" width="32" height="32"/>
-  <object x="32" y="608" width="32" height="32"/>
-  <object x="64" y="512" width="32" height="32"/>
-  <object x="96" y="480" width="32" height="32"/>
-  <object x="352" y="160" width="32" height="32"/>
-  <object x="288" y="224" width="32" height="32"/>
-  <object x="256" y="384" width="32" height="32"/>
-  <object x="320" y="416" width="32" height="32"/>
- </objectgroup>
  <objectgroup name="triggers" width="20" height="20">
-  <object name="start" x="288" y="512" width="64" height="32"/>
+  <object name="start" x="64" y="32" width="64" height="64"/>
  </objectgroup>
 </map>
