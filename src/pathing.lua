@@ -3,6 +3,7 @@ local PriorityQueue = require("lib/binary_heap")
 local PathSearch = Class{function(self, startPos, goalPos, world)
     self.startPos = startPos
     self.goalPos = goalPos
+    self.goalNavpoly = world.navlookup[world:vectorToTileNum(goalPos)]
     self.world = world
 end}
 
@@ -14,26 +15,46 @@ function PathSearch:isGoalState(state)
     if state == nil then
         return false
     else
-        return state.x == self.goalPos.x and state.y == self.goalPos.y
+        return state == self.goalPos
     end
 end
 
 function PathSearch:getSuccessors(state)
-    local unitCost = function() return 1 end
-    local successors = {
-        {state = {x=state.x - 1, y=state.y},
-            action={dir='w', cost=unitCost}},
-        {state = {x=state.x + 1, y=state.y},
-            action={dir='e', cost=unitCost}},
-        {state = {x=state.x, y=state.y + 1},
-            action={dir='s', cost=unitCost}},
-        {state = {x=state.x, y=state.y - 1},
-            action={dir='n', cost=unitCost}},
-    }
+    -- given an (x, y) position, state
+    -- figure out what tile number that is
+    -- look up the tile number in world.navlookup to get the nav poly
+    -- successor states are polygon.vetexes
+    -- successor actions are the difference between the vertex and the (x,y)
+    -- the cost is the len of the difference
+    local tileVector = self.world:posVectorToTileVector(state)
+    local tileNum = tileVector.y * self.world.map.width + tileVector.x
 
-    for i, successor in pairs(successors) do
-        if self.world:isObstructed(successor.state) then
-            table.remove(successors, i)
+    local successors = {}
+    local navpoly = self.world.navlookup[tileNum]
+    if navpoly == nil then
+        return successors
+    end
+    log("%s is in navpoly %d", tostring(tileVector), navpoly.object.name)
+    for i, neighborName in pairs(navpoly.neighbors) do
+        log("navpoly %d, neighbor %d", navpoly.object.name, neighborName)
+        local neighbor = self.world.navmesh[neighborName]
+
+        if neighbor.object.name == self.goalNavpoly.object.name then
+            log("Adding goalPos %s to successors", tostring(self.goalPos))
+            local delta = self.goalPos - state
+            table.insert(successors, {
+                state = self.goalPos,
+                action = delta,
+                cost = delta:len()
+            })
+        end
+        for j, vertex in pairs(neighbor.vertexes) do
+            local delta = vertex - state
+            table.insert(successors, {
+                state = vertex,
+                action = delta,
+                cost = delta:len()
+            })
         end
     end
 
@@ -47,8 +68,8 @@ function PathSearch:totalCost(plan)
 end
 
 function PathSearch:estimatedForwardCost(state)
-    -- heuristic: manhattan distance from goal
-    return math.abs(state.x - self.goalPos.x) + math.abs(state.y - self.goalPos.y)
+    -- heuristic: euclidean distance from goal
+    return self.goalPos:dist(state)
 end
 
 local Plan = Class{function(self, state, actions)
@@ -65,7 +86,7 @@ function Plan:cost()
     if self._cost == nil then
         local totalCost = 0
         for k, action in pairs(self.actions.q) do
-            totalCost = totalCost + action:cost(self.state)
+            totalCost = totalCost + action:len()
         end
         self._cost = totalCost
     end
@@ -75,7 +96,7 @@ end
 function Plan:__tostring()
     local output = ''
     for k, action in pairs(self.actions.q) do
-        output = output .. action.dir
+        output = output .. tostring(action)
     end
     return output
 end
@@ -103,6 +124,7 @@ function search(query)
     local seenAlready = {}
     while not query:isGoalState(plan.state) do
         plan = fringe:pop()
+        log("[%d] Expanding %s", n, tostring(query.world:posVectorToTileVector(plan.state)))
 
         if plan == nil then
             error("Fringe is empty, but goal was never found")
@@ -114,7 +136,7 @@ function search(query)
             if not seenAlready[stateKey] then
                 local newActions = plan.actions:copy()
                 newActions:push(successor.action)
-                --print("adding x:"..successor.state.x..", y:"..successor.state.y)
+                log("[%d] adding %s", n, tostring(query.world:posVectorToTileVector(successor.state)))
                 fringe:insert(Plan(successor.state, newActions))
                 seenAlready[stateKey] = true
             end
@@ -123,7 +145,7 @@ function search(query)
     end
 
     print("Found goal in "..tostring((os.clock() - startTime)*1000.0).."ms trying "..tostring(n).." states. Returning actions: "..tostring(plan))
-    return plan.actions
+    return plan.actions.q
 end
 
 function profile()

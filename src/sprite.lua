@@ -221,11 +221,9 @@ end
 
 
 function Player:followPath(directions)
-  local direction = directions:pop()
-  self:move(direction)
-
-  for i, direction in pairs(directions) do
-    self:move(direction)
+  for i, delta in pairs(directions) do
+    log("thing %s", tostring(delta))
+    table.insert(self.toDo, self:move(delta))
   end
 end
 
