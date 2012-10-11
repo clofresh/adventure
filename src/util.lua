@@ -1,45 +1,5 @@
-local vector = require 'lib/hump/vector-light'
+vector = require 'lib/hump/vector'
 
-local Position = Class{function(self, x, y, dirX, dirY)
-  self.x = x
-  self.y = y
-  self.dirX = dirX
-  self.dirY = dirY
-end}
-
-function Position:move(x, y)
-  self.x = self.x + x
-  self.y = self.y + y
-  self.dirX, self.dirY = vector.normalize(x, y)
-  return self
-end
-
-function Position:spriteDir()
-  local dir
-  if math.abs(self.dirX) > math.abs(self.dirY) then
-    if self.dirX < 0 then
-      dir = "W"
-    else
-      dir = "E"
-    end
-  else
-    if self.dirY < 0 then
-      dir = "N"
-    else
-      dir = "S"
-    end
-  end
-  return dir
-end
-
-function Position:clone()
-  return Position(self.x, self.y, self.dirX, self.dirY)
-end
-
-function Position:tostring()
-  return string.format("x: %d, y: %d, dx: %d, dy: %d", self.x, self.y,
-                        self.dirX, self.dirY)
-end
 
 local Dimensions = Class{function(self, w, h)
   self.w = w
@@ -89,6 +49,31 @@ function Queue:copy()
 end
 function log(msg, ...)
   print(os.date("%Y-%m-%dT%I:%M:%S%p") .. " - " .. string.format(msg, ...))
+end
+
+function string:split(sSeparator, nMax, bRegexp)
+  assert(sSeparator ~= '')
+  assert(nMax == nil or nMax >= 1)
+
+  local aRecord = {}
+
+  if self:len() > 0 then
+    local bPlain = not bRegexp
+    nMax = nMax or -1
+
+    local nField=1 nStart=1
+    local nFirst,nLast = self:find(sSeparator, nStart, bPlain)
+    while nFirst and nMax ~= 0 do
+      aRecord[nField] = self:sub(nStart, nFirst-1)
+      nField = nField+1
+      nStart = nLast+1
+      nFirst,nLast = self:find(sSeparator, nStart, bPlain)
+      nMax = nMax-1
+    end
+    aRecord[nField] = self:sub(nStart)
+  end
+
+  return aRecord
 end
 
 return {
