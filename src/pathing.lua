@@ -124,6 +124,13 @@ function search(query)
     local seenAlready = {}
     while not query:isGoalState(plan.state) do
         plan = fringe:pop()
+        local stateKey = plan.state.x .. ',' .. plan.state.y
+        while seenAlready[stateKey] do
+            plan = fringe:pop()
+            stateKey = plan.state.x .. ',' .. plan.state.y
+        end
+        seenAlready[stateKey] = true
+
         log("[%d] Expanding %s", n, tostring(query.world:posVectorToTileVector(plan.state)))
 
         if plan == nil then
@@ -132,14 +139,10 @@ function search(query)
         -- Current state isn't the goal, add its successors to the fringe
         -- and try the next highest priority one
         for i, successor in ipairs(query:getSuccessors(plan.state)) do
-            local stateKey = successor.state.x .. ',' .. successor.state.y
-            if not seenAlready[stateKey] then
-                local newActions = plan.actions:copy()
-                newActions:push(successor.action)
-                log("[%d] adding %s", n, tostring(query.world:posVectorToTileVector(successor.state)))
-                fringe:insert(Plan(successor.state, newActions))
-                seenAlready[stateKey] = true
-            end
+            local newActions = plan.actions:copy()
+            newActions:push(successor.action)
+            log("[%d] adding %s", n, tostring(query.world:posVectorToTileVector(successor.state)))
+            fringe:insert(Plan(successor.state, newActions))
         end
         n = n + 1
     end
