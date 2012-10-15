@@ -47,6 +47,7 @@ function Queue:copy()
     end
     return Queue(q)
 end
+
 function log(msg, ...)
   print(os.date("%Y-%m-%dT%I:%M:%S%p") .. " - " .. string.format(msg, ...))
 end
@@ -76,9 +77,36 @@ function string:split(sSeparator, nMax, bRegexp)
   return aRecord
 end
 
+function getVertices(obj)
+  if not obj.width or not obj.height then
+    return {vector(obj.x, obj.y)}
+  else
+    return {
+        vector(obj.x,                 obj.y),                   -- nw
+        vector(obj.x + obj.width / 2, obj.y),                   -- n
+        vector(obj.x + obj.width,     obj.y),                   -- ne
+        vector(obj.x + obj.width,     obj.y + obj.height / 2),  -- e
+        vector(obj.x + obj.width,     obj.y + obj.height),      -- se
+        vector(obj.x + obj.width / 2, obj.y + obj.height),      -- s
+        vector(obj.x,                 obj.y + obj.height),      -- sw
+        vector(obj.x,                 obj.y + obj.height / 2),  -- w
+    }
+  end
+end
+
+function getCenter(obj)
+  if not obj.width or not obj.height then
+    return {vector(obj.x, obj.y)}
+  else
+    return vector(obj.x + obj.width / 2, obj.y + obj.height / 2)
+  end
+end
+
 return {
   Position = Position,
   Dimensions = Dimensions,
   log = log,
   Queue = Queue,
+  getVertices = getVertices,
+  getCenter = getCenter,
 }

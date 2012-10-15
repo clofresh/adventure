@@ -48,7 +48,7 @@
   <properties>
    <property name="focus" value="player"/>
   </properties>
-  <object name="player" type="Player" x="576" y="384" width="64" height="64">
+  <object name="player" type="Player" x="576" y="0" width="64" height="64">
    <properties>
     <property name="dirX" value="0"/>
     <property name="dirY" value="-1"/>
@@ -67,7 +67,8 @@
   </data>
  </layer>
  <objectgroup name="triggers" width="20" height="20">
-  <object name="goal" x="0" y="288" width="64" height="64"/>
+  <object name="westexit" x="0" y="256" width="64" height="192"/>
+  <object name="eastexit" x="576" y="192" width="64" height="256"/>
  </objectgroup>
  <objectgroup name="nav" width="20" height="20" visible="0">
   <object name="1" x="0" y="192" width="64" height="256">

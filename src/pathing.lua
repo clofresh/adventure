@@ -1,9 +1,11 @@
 local PriorityQueue = require("lib/binary_heap")
 
-local PathSearch = Class{function(self, startPos, goalPos, world)
+local PathSearch = Class{function(self, startPos, goal, world)
     self.startPos = startPos
-    self.goalPos = goalPos
-    self.goalNavpoly = world.navlookup[world:vectorToTileNum(goalPos)]
+    self.goal = goal
+    goal.pos = util.getCenter(goal)
+
+    self.goalNavpoly = world.navlookup[world:vectorToTileNum(goal.pos)]
     self.world = world
 end}
 
@@ -15,7 +17,7 @@ function PathSearch:isGoalState(state)
     if state == nil then
         return false
     else
-        return state == self.goalPos
+        return state == self.goal.pos
     end
 end
 
@@ -40,10 +42,10 @@ function PathSearch:getSuccessors(state)
         local neighbor = self.world.navmesh[neighborName]
 
         if neighbor.object.name == self.goalNavpoly.object.name then
-            log("Adding goalPos %s to successors", tostring(self.goalPos))
-            local delta = self.goalPos - state
+            log("Adding goal.pos %s to successors", tostring(self.goal.pos))
+            local delta = self.goal.pos - state
             table.insert(successors, {
-                state = self.goalPos,
+                state = self.goal.pos,
                 action = delta,
                 cost = delta:len()
             })
@@ -69,7 +71,7 @@ end
 
 function PathSearch:estimatedForwardCost(state)
     -- heuristic: euclidean distance from goal
-    return self.goalPos:dist(state)
+    return self.goal.pos:dist(state)
 end
 
 local Plan = Class{function(self, state, actions)

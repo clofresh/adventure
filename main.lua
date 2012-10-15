@@ -14,7 +14,8 @@ function love.load()
   graphics.load()
   world = World.fromTmx('maps/meadow.tmx')
   local player = world.sprites.player
-  player:followPath(world:findPath(player.pos, vector(world.triggers.goal.x, world.triggers.goal.y)))
+  player:followPath(world:findPath(player.pos, world.triggers.westexit))
+  player:followPath(world:findPath(util.getCenter(world.triggers.westexit), world.triggers.eastexit))
 end
 
 function love.update(dt)
