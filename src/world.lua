@@ -1,3 +1,4 @@
+local ATL = require("lib/Advanced-Tiled-Loader").Loader
 local Camera = require 'lib/hump/camera'
 local HC = require 'lib/HardonCollider'
 
@@ -5,6 +6,7 @@ local pathing = require 'src/pathing'
 local sprite = require 'src/sprite'
 
 local World = Class{function(self, map)
+  map.drawObjects = debugMode
   self.cam = Camera.new(980, 1260, 1, 0)
   self.collider = HC(100, function(dt, shapeA, shapeB, mtvX, mtvY)
     --self:onCollide(dt, shapeA, shapeB, mtvX, mtvY)
@@ -119,6 +121,10 @@ local World = Class{function(self, map)
   end
 
 end}
+
+function World.fromTmx(filename)
+  return World(ATL.load(filename))
+end
 
 function World:register(spr)
   local shape = spr:initShape(self.collider)
