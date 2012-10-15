@@ -36,15 +36,15 @@ local World = Class{function(self, map)
   self.navlookup = {}
   for i, obj in pairs(map("nav").objects) do
     log(obj.name)
-    local nw, ne, se, sw, polygon
+    local nw, n, ne, e, se, s, sw, w, polygon
     nw = vector(obj.x,                 obj.y)
-    -- n  = vector(obj.x + obj.width / 2, obj.y)
+    n  = vector(obj.x + obj.width / 2, obj.y)
     ne = vector(obj.x + obj.width,     obj.y)
-    -- e  = vector(obj.x + obj.width,     obj.y + obj.height / 2)
+    e  = vector(obj.x + obj.width,     obj.y + obj.height / 2)
     se = vector(obj.x + obj.width,     obj.y + obj.height)
-    -- s  = vector(obj.x + obj.width / 2, obj.y + obj.height)
+    s  = vector(obj.x + obj.width / 2, obj.y + obj.height)
     sw = vector(obj.x,                 obj.y + obj.height)
-    -- w  = vector(obj.x,                 obj.y + obj.height / 2)
+    w  = vector(obj.x,                 obj.y + obj.height / 2)
 
     local nbrs
     if type(obj.properties.neighbors) == 'string' then
@@ -55,7 +55,7 @@ local World = Class{function(self, map)
 
     polygon = {
       object    = obj,
-      vertexes  = {nw, ne, se, sw},
+      vertexes  = {nw, n, ne, e, se, s, sw, w},
       neighbors = nbrs
     }
     self.navmesh[obj.name] = polygon 
