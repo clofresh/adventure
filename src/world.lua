@@ -37,7 +37,7 @@ local World = Class{function(self, map)
   self.navmesh = {}
   self.navlookup = {}
   for i, obj in pairs(map("nav").objects) do
-    log(obj.name)
+    -- log(obj.name)
     local polygon, nbrs
 
     if type(obj.properties.neighbors) == 'string' then
@@ -63,7 +63,7 @@ local World = Class{function(self, map)
         local col = j / map.tileWidth
         local tileNum = row * map.width + col
         self.navlookup[tileNum] = polygon
-        log("(%d, %d), tileNum: %f, navpoly: %s", col, row, tileNum, polygon.object.name)
+        -- log("(%d, %d), tileNum: %f, navpoly: %s", col, row, tileNum, polygon.object.name)
       end
     end
   end
@@ -181,13 +181,16 @@ function World:isObstructed(gridPos)
 end
 
 function World:findPath(startGridPos, endGridPos)
-  log("Finding path from %s to %s", tostring(startGridPos), tostring(endGridPos))
+  -- log("Finding path from %s to %s", tostring(startGridPos), tostring(endGridPos))
+  if startGridPos.pos then
+    startGridPos = startGridPos.pos
+  end
   local query = pathing.PathSearch(startGridPos, endGridPos, self)
   return pathing.search(query)
 end
 
 function World:vectorToTileNum(vec)
-  return (vec.y / self.map.tileHeight) * self.map.width + (vec.x / self.map.tileWidth)
+  return math.floor((vec.y / self.map.tileHeight) * self.map.width + (vec.x / self.map.tileWidth))
 end
 
 function World:posVectorToTileVector(vec)

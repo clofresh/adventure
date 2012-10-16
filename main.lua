@@ -13,9 +13,34 @@ local world
 function love.load()
   graphics.load()
   world = World.fromTmx('maps/meadow.tmx')
-  local player = world.sprites.player
-  player:followPath(world:findPath(player.pos, world.triggers.westexit))
-  player:followPath(world:findPath(util.getCenter(world.triggers.westexit), world.triggers.eastexit))
+  local nadira = world.sprites.nadira
+  local e = util.getCenter(world.triggers.eastexit) - vector(nadira.dim.w / 2, nadira.dim.h / 2)
+  local w = util.getCenter(world.triggers.westexit) - vector(nadira.dim.w / 2, nadira.dim.h / 2)
+  local n = util.getCenter(world.triggers.northexit) - vector(nadira.dim.w / 2, nadira.dim.h / 2)
+
+  local goWest, goNorth
+  local goEast = function(self, dt, world)
+    if #self.toDo == 0 then
+      log("Going east")
+      self:followPath(world:findPath(self, e))
+      self.planActions = goNorth
+    end
+  end
+  goNorth = function(self, dt, world)
+    if #self.toDo == 0 then
+      log("Going north")
+      self:followPath(world:findPath(self, n))
+      self.planActions = goWest
+    end
+  end
+  goWest = function(self, dt, world)
+    if #self.toDo == 0 then
+      log("Going west")
+      self:followPath(world:findPath(self, w))
+      self.planActions = goEast
+    end
+  end
+  nadira.planActions = goEast
 end
 
 function love.update(dt)

@@ -102,6 +102,14 @@ function getCenter(obj)
   end
 end
 
+function vectorSum(vectors)
+  local totalVector = vector(0, 0)
+  for i, vec in pairs(vectors) do
+    totalVector = totalVector + vec
+  end
+  return totalVector
+end
+
 return {
   Position = Position,
   Dimensions = Dimensions,
@@ -109,4 +117,5 @@ return {
   Queue = Queue,
   getVertices = getVertices,
   getCenter = getCenter,
+  vectorSum = vectorSum,
 }

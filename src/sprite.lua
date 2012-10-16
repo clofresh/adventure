@@ -1,29 +1,12 @@
-
-local State = Class{function(self, name, updateCallback)
-  self.name = name
-  self.updateCallback = updateCallback
+local Action = Class{function(self, duration, toExecute)
+  self.duration = duration
+  self.elapsed = 0
+  self.toExecute = toExecute
 end}
 
-function State:update(dt, world, sprite)
-  return self:updateCallback(dt, world, sprite)
-end
-
-function State:transitionIn(prevState, dt, world, sprite)
-  if prevState ~= self then
-    local p
-    if prevState then
-      p = prevState:tostring()
-    else
-      p = 'nil'
-    end
-
-    util.log("%s: %s -> %s", sprite.name, p, self:tostring())
-  end
-  return self
-end
-
-function State:tostring()
-  return string.format("state: %s", self.name)
+function Action:execute(dt, world)
+  self.elapsed = self.elapsed + dt
+  self:toExecute(dt, world)
 end
 
 local Sprite = Class{function(self, name, pos, dir, dim, animationSet)
@@ -84,8 +67,48 @@ function Sprite:act(dt, world)
     end
   end
   local leftToDo = #self.toDo
-  if leftToDo > 0 then
-    util.log("%s has %d left to do", self.name, leftToDo)
+  -- if leftToDo > 0 then
+  --   util.log("%s has %d left to do", self.name, leftToDo)
+  -- end
+end
+
+function Sprite:move(displacement, velocity)
+  -- FIXME: Update distance to be a displacement vector, instead of a scalar,
+  -- and update the pathfinding algorithm to return a list of displacement vectors
+  -- instead of NSEW directions.
+  local distance = displacement:len()
+  if velocity == nil then
+    velocity = self.velocity
+  end
+  local unitDisplacement = displacement:normalized()
+  local action = Action(distance / velocity, function(self, dt)
+    local step = (velocity * dt) * unitDisplacement
+    self.sprite.pos = self.sprite.pos + step
+    self.sprite:setAnimation('walking')
+
+    if math.abs(step.x) > math.abs(step.y) then
+      if step.x < 0 then
+        self.sprite.dir = "W"
+      else
+        self.sprite.dir = "E"
+      end
+    else
+      if step.y < 0 then
+        self.sprite.dir = "N"
+      else
+        self.sprite.dir = "S"
+      end
+    end
+
+
+  end)
+  action.sprite = self
+  return action
+end
+
+function Sprite:followPath(directions)
+  for i, delta in pairs(directions) do
+    table.insert(self.toDo, self:move(delta))
   end
 end
 
@@ -115,6 +138,14 @@ function Sprite:tostring()
 end
 
 
+-- Nadira
+local Nadira = Class{inherits=Sprite, function(self, name, pos, dir, dim, animationSet)
+  Sprite.construct(self, name, pos, dir, dim, animationSet)
+  self.velocity = 110
+end}
+
+
+-- Player
 local Player = Class{inherits=Sprite, function(self, name, pos, dir, dim, animationSet)
   Sprite.construct(self, name, pos, dir, dim, animationSet)
   self.velocity = 120
@@ -124,17 +155,6 @@ function Player:onCollide(dt, otherSprite, mtvX, mtvY)
   if otherSprite.properties and otherSprite.properties.obstruction then
     self.pos:move(mtvX, mtvY)
   end
-end
-
-local Action = Class{function(self, duration, toExecute)
-  self.duration = duration
-  self.elapsed = 0
-  self.toExecute = toExecute
-end}
-
-function Action:execute(dt, world)
-  self.elapsed = self.elapsed + dt
-  self:toExecute(dt, world)
 end
 
 function Player:planActions(dt, world)
@@ -185,54 +205,13 @@ function Player:planActions(dt, world)
   end
 end
 
-function Player:move(displacement, velocity)
-  -- FIXME: Update distance to be a displacement vector, instead of a scalar,
-  -- and update the pathfinding algorithm to return a list of displacement vectors
-  -- instead of NSEW directions.
-  local distance = displacement:len()
-  if velocity == nil then
-    velocity = self.velocity
-  end
-  local unitDisplacement = displacement:normalized()
-  local action = Action(distance / velocity, function(self, dt)
-    local step = (velocity * dt) * unitDisplacement
-    self.sprite.pos = self.sprite.pos + step
-    self.sprite:setAnimation('walking')
-
-    if math.abs(step.x) > math.abs(step.y) then
-      if step.x < 0 then
-        self.sprite.dir = "W"
-      else
-        self.sprite.dir = "E"
-      end
-    else
-      if step.y < 0 then
-        self.sprite.dir = "N"
-      else
-        self.sprite.dir = "S"
-      end
-    end
 
 
-  end)
-  action.sprite = self
-  return action
-end
-
-
-function Player:followPath(directions)
-  for i, delta in pairs(directions) do
-    log("thing %s", tostring(delta))
-    table.insert(self.toDo, self:move(delta))
-  end
-end
 
 local exports = {
   Sprite     = Sprite,
   Player     = Player,
-  Bee        = Bee,
   Nadira     = Nadira,
-  State      = State,
 }
 
 function fromTmx(obj)
