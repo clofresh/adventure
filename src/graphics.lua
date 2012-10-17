@@ -95,6 +95,16 @@ function load()
     castingS = anim8.newAnimation('once', g('1-7,7'), 0.1),
     castingE = anim8.newAnimation('once', g('1-7,8'), 0.8, {0.8, 0.8, 0.8, 0.8, 0.8, 1.6, 0.8}),
     })
+
+  local sword = love.graphics.newImage('maps/tilesets/sword_sheet_128.png')
+  local g = anim8.newGrid(128, 128, sword:getWidth(), sword:getHeight())
+  animations.sword = AnimationSet(sword, {
+    slashingN = anim8.newAnimation('loop', g('1-6,1'), 0.1),
+    slashingW = anim8.newAnimation('loop', g('1-6,2'), 0.1),
+    slashingS = anim8.newAnimation('loop', g('1-6,3'), 0.1),
+    slashingE = anim8.newAnimation('loop', g('1-6,4'), 0.1),
+  })
+
 end
 
 return {

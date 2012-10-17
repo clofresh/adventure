@@ -76,7 +76,7 @@
  <objectgroup name="triggers" width="20" height="20">
   <object name="westexit" x="0" y="256" width="64" height="192"/>
   <object name="eastexit" x="576" y="192" width="64" height="256"/>
-  <object name="northexit" x="480" y="32" width="160" height="64"/>
+  <object name="northexit" x="480" y="0" width="128" height="64"/>
  </objectgroup>
  <objectgroup name="nav" width="20" height="20">
   <object name="1" x="0" y="192" width="64" height="256">
@@ -110,7 +110,7 @@
     <property name="neighbors" value="5,8"/>
    </properties>
   </object>
-  <object name="8" x="480" y="0" width="160" height="128">
+  <object name="8" x="448" y="0" width="192" height="128">
    <properties>
     <property name="neighbors" value="6,7"/>
    </properties>

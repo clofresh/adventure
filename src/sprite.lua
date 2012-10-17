@@ -29,7 +29,7 @@ end
 function Sprite:setAnimation(animationType)
   local animationName = animationType..self.dir
   local animation = self.animationSet:getAnimation(animationName)
-  if self.animationSet.currentAnimation ~= animation then
+  if animation and self.animationSet.currentAnimation ~= animation then
     self.animationSet:setAnimation(animation)
   end
 end
@@ -149,6 +149,11 @@ end}
 local Player = Class{inherits=Sprite, function(self, name, pos, dir, dim, animationSet)
   Sprite.construct(self, name, pos, dir, dim, animationSet)
   self.velocity = 120
+
+  self.sword = Sprite('sword', self.pos, self.dir, util.Dimensions(64, 64),
+                     graphics.animations.sword)
+  self.sword:setAnimation('slashing')
+
 end}
 
 function Player:onCollide(dt, otherSprite, mtvX, mtvY)
@@ -166,15 +171,16 @@ function Player:planActions(dt, world)
     return
   end
 
-  -- if keysPressed["1"] then
-  --   local duration = 0
-  --   local directions = {{"E", 50, 90}, {"N", 10, 120}}
-  --   for i, direction in pairs(directions) do
-  --     local action = self:move(direction[1], direction[2], direction[3])
-  --     table.insert(self.toDo, action)
-  --   end
-  --   world:releasedKey("1")
-  -- end
+  if keysPressed[" "] then
+    if not world.sprites[self.sword.name] then
+      self.sword.pos = self.pos - vector(32, 32)
+      self.sword.dir = self.dir
+      self.sword:setAnimation('slashing')
+      world:register(self.sword)
+    end
+  else
+    world:unregister(self.sword)
+  end
 
   if keysPressed["w"] then
     direction = direction .. "N"

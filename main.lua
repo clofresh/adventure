@@ -18,24 +18,17 @@ function love.load()
   local w = util.getCenter(world.triggers.westexit) - vector(nadira.dim.w / 2, nadira.dim.h / 2)
   local n = util.getCenter(world.triggers.northexit) - vector(nadira.dim.w / 2, nadira.dim.h / 2)
 
-  local goWest, goNorth
+  local goWest
   local goEast = function(self, dt, world)
     if #self.toDo == 0 then
-      log("Going east")
+      log("Going to east exit")
       self:followPath(world:findPath(self, e))
-      self.planActions = goNorth
-    end
-  end
-  goNorth = function(self, dt, world)
-    if #self.toDo == 0 then
-      log("Going north")
-      self:followPath(world:findPath(self, n))
       self.planActions = goWest
     end
   end
   goWest = function(self, dt, world)
     if #self.toDo == 0 then
-      log("Going west")
+      log("Going to west exit")
       self:followPath(world:findPath(self, w))
       self.planActions = goEast
     end
