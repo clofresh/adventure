@@ -2,7 +2,7 @@ local anim8 = require 'lib/anim8/anim8'
 local HC = require 'lib/HardonCollider'
 local Camera = require 'lib/hump/camera'
 local loader = require("lib/Advanced-Tiled-Loader").Loader
-local debug = false 
+local debug = false
 local player, Collider, dummy, sprites, cam, world
 sprites = {}
 
@@ -54,25 +54,25 @@ function love.load()
   sprites.alex = {image=alex}
   local g = anim8.newGrid(40, 40, alex:getWidth(), alex:getHeight())
   sprites.alex.animation = {
-      idle = anim8.newAnimation('once', g('1,1'), 0.1),
-      walking = anim8.newAnimation('loop', g('2-3,1'), 0.1),
-      punching = anim8.newAnimation('once', g('1-3,2'), 0.1),
-      uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
-      sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
-      lowkicking = anim8.newAnimation('once', g('5,3'), 0.1),
-      crouching = anim8.newAnimation('once', g('7,1'), 0.1),
+      idle = anim8.newAnimation(g(1, 1), 0.1),
+      walking = anim8.newAnimation(g('2-3', 1), 0.1),
+      punching = anim8.newAnimation(g('1-3',2), 0.1),
+      uppercutting = anim8.newAnimation(g('7-9',2), 0.1, {0.2, 0.1, 0.2}),
+      sidekicking = anim8.newAnimation(g('1-3',3), 0.1),
+      lowkicking = anim8.newAnimation(g(5,3), 0.1),
+      crouching = anim8.newAnimation(g(7,1), 0.1),
     }
   sprites.ryan = {image=ryan}
   local g = anim8.newGrid(40, 40, ryan:getWidth(), ryan:getHeight())
   sprites.ryan.animation = {
-      idle = anim8.newAnimation('once', g('1,1'), 0.1),
-      walking = anim8.newAnimation('loop', g('2-3,1'), 0.1),
-      punching = anim8.newAnimation('once', g('1-3,2'), 0.1),
-      uppercutting = anim8.newAnimation('once', g('7-9,2'), 0.1, {0.2, 0.1, 0.2}),
-      sidekicking = anim8.newAnimation('once', g('1-3,3'), 0.1),
-      highkicking = anim8.newAnimation('once', g('1-4,3'), 0.1),
-      crouching = anim8.newAnimation('once', g('7,1'), 0.1),
-      hurt = anim8.newAnimation('once', g('3,5'), 0.1),
+      idle = anim8.newAnimation(g(1,1), 0.1),
+      walking = anim8.newAnimation(g('2-3',1), 0.1),
+      punching = anim8.newAnimation(g('1-3',2), 0.1),
+      uppercutting = anim8.newAnimation(g('7-9',2), 0.1, {0.2, 0.1, 0.2}),
+      sidekicking = anim8.newAnimation(g('1-3',3), 0.1),
+      highkicking = anim8.newAnimation(g('1-4',3), 0.1),
+      crouching = anim8.newAnimation(g(7,1), 0.1),
+      hurt = anim8.newAnimation(g(3,5), 0.1),
     }
 
   cam = Camera.new(980, 1260, 1, 0)
